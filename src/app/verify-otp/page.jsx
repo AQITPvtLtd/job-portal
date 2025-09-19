@@ -1,9 +1,13 @@
-import React from 'react'
+"use client"
+
+import React, { Suspense } from "react";
 import VerifyOtpPage from './Verifyotp'
 const page = () => {
     return (
         <div>
-            <VerifyOtpPage />
+            <Suspense fallback={<p>Loading...</p>}>
+                <VerifyOtpPage />
+            </Suspense>
         </div>
     )
 }
