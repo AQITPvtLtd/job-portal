@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import Image from "next/image";
 import NotificationsBell from "./NotificationsBell";
 export default function Navbar() {
     const { data: session } = useSession();
@@ -9,7 +10,12 @@ export default function Navbar() {
         <nav className="flex justify-between items-center px-6 py-3 bg-gray-900 text-white shadow-md">
             {/* Logo */}
             <Link href="/" className="text-2xl font-bold tracking-wide">
-                MyApp
+                <Image
+                    src="/logo/logowhite.png"
+                    alt="Tek Booster Logo"
+                    width={200}
+                    height={200}
+                />
             </Link>
 
             <div className="flex items-center gap-6">

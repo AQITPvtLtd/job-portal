@@ -26,7 +26,7 @@ export default function LoginPage() {
             const session = await sessionRes.json();
 
             if (session?.user?.role === "employer") {
-                router.push("/dashboard/employer/jobs/new");
+                router.push("/dashboard/employer");
             } else if (session?.user?.role === "employee") {
                 router.push("/dashboard/employee");
             } else {

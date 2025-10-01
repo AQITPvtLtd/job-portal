@@ -63,7 +63,7 @@ export async function POST(req) {
             // create notification for employer (using your notifications schema)
             await db.execute(
                 `INSERT INTO notifications (user_id, type, title, body, payload, is_read, created_at)
-         VALUES (?, ?, ?, ?, ?, 0, NOW())`,
+                VALUES (?, ?, ?, ?, ?, 0, NOW())`,
                 [
                     employerId,
                     "application",
