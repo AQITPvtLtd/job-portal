@@ -36,8 +36,18 @@ export default function ChatPage() {
 
     // Scroll to bottom when messages change
     useEffect(() => {
-        if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight;
+        if (!listRef.current) return;
+
+        const el = listRef.current;
+        const isAtBottom =
+            el.scrollHeight - el.scrollTop === el.clientHeight; // already at bottom
+
+        if (isAtBottom) {
+            // scroll to bottom only if already at bottom
+            el.scrollTop = el.scrollHeight;
+        }
     }, [messages]);
+
 
     // Mark messages as read only when this user opens the chat
     useEffect(() => {
@@ -83,8 +93,8 @@ export default function ChatPage() {
                             >
                                 <div
                                     className={`max-w-[70%] p-3 rounded-lg ${isMine
-                                            ? "bg-indigo-600 text-white rounded-br-none"
-                                            : "bg-gray-200 text-gray-900 rounded-bl-none"
+                                        ? "bg-indigo-600 text-white rounded-br-none"
+                                        : "bg-gray-200 text-gray-900 rounded-bl-none"
                                         }`}
                                 >
                                     <div>{m.content}</div>
