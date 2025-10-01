@@ -13,48 +13,60 @@ export default function ChatPage() {
     const [text, setText] = useState("");
     const listRef = useRef(null);
 
-    async function fetchMessages() {
-        const res = await fetch(`/api/messages/${otherId}`);
-        const d = await res.json();
-        if (d.ok) setMessages(d.messages || []);
-    }
-
+    // Poll messages every 3s
     useEffect(() => {
         if (!otherId) return;
 
-        async function pollMessages() {
+        let isMounted = true;
+
+        async function fetchMessages() {
             const res = await fetch(`/api/messages/${otherId}`);
             const d = await res.json();
-            if (d.ok) setMessages(d.messages || []);
-
-            // Mark unread messages as read (sent by other user)
-            await fetch("/api/messages/mark-read", {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ senderId: Number(otherId) })
-            }).catch(() => { });
+            if (d.ok && isMounted) setMessages(d.messages || []);
         }
 
-        pollMessages(); // first fetch immediately
-        const iv = setInterval(pollMessages, 3000); // polling every 3s
+        fetchMessages(); // first fetch
+        const iv = setInterval(fetchMessages, 3000);
 
-        return () => clearInterval(iv);
+        return () => {
+            isMounted = false;
+            clearInterval(iv);
+        };
     }, [otherId]);
 
+    // Scroll to bottom when messages change
     useEffect(() => {
         if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight;
     }, [messages]);
 
+    // Mark messages as read only when this user opens the chat
+    useEffect(() => {
+        if (!otherId) return;
+        async function markRead() {
+            await fetch("/api/messages/mark-read", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ senderId: Number(otherId) }),
+            }).catch(() => { });
+        }
+        markRead();
+    }, [otherId]); // only runs when user opens this chat
+
     async function onSend(e) {
         e.preventDefault();
         if (!text.trim()) return;
+
         await fetch("/api/messages", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ receiverId: Number(otherId), content: text })
+            body: JSON.stringify({ receiverId: Number(otherId), content: text }),
         });
+
         setText("");
-        fetchMessages();
+        // Fetch messages immediately after sending
+        const res = await fetch(`/api/messages/${otherId}`);
+        const d = await res.json();
+        if (d.ok) setMessages(d.messages || []);
     }
 
     return (
@@ -62,7 +74,7 @@ export default function ChatPage() {
             <div className="bg-white shadow rounded-lg flex flex-col h-[70vh]">
                 {/* Chat messages */}
                 <div ref={listRef} className="flex-1 overflow-auto p-4 space-y-3">
-                    {messages.map(m => {
+                    {messages.map((m) => {
                         const isMine = m.sender_id === currentUserId;
                         return (
                             <div
@@ -71,14 +83,19 @@ export default function ChatPage() {
                             >
                                 <div
                                     className={`max-w-[70%] p-3 rounded-lg ${isMine
-                                        ? "bg-indigo-600 text-white rounded-br-none"
-                                        : "bg-gray-200 text-gray-900 rounded-bl-none"
+                                            ? "bg-indigo-600 text-white rounded-br-none"
+                                            : "bg-gray-200 text-gray-900 rounded-bl-none"
                                         }`}
                                 >
                                     <div>{m.content}</div>
                                     <div className="text-xs mt-1 flex justify-between items-center">
-                                        <span className={`${isMine ? "text-indigo-200" : "text-gray-500"}`}>
-                                            {new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                        <span
+                                            className={`${isMine ? "text-indigo-200" : "text-gray-500"}`}
+                                        >
+                                            {new Date(m.created_at).toLocaleTimeString([], {
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                            })}
                                         </span>
                                         {isMine && (
                                             <span className="ml-2 text-[11px]">
@@ -96,7 +113,7 @@ export default function ChatPage() {
                 <form onSubmit={onSend} className="p-4 border-t flex gap-2">
                     <input
                         value={text}
-                        onChange={e => setText(e.target.value)}
+                        onChange={(e) => setText(e.target.value)}
                         className="flex-1 border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-indigo-300"
                         placeholder="Type a message..."
                     />
