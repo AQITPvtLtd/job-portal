@@ -48,7 +48,6 @@ export default function ChatPage() {
         }
     }, [messages]);
 
-
     // Mark messages as read only when this user opens the chat
     useEffect(() => {
         if (!otherId) return;
