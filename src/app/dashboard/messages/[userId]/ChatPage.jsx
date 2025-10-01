@@ -21,16 +21,23 @@ export default function ChatPage() {
 
     useEffect(() => {
         if (!otherId) return;
-        fetchMessages();
 
-        // ✅ mark messages as read
-        fetch("/api/messages/mark-read", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ senderId: Number(otherId) })
-        }).catch(() => { });
+        async function pollMessages() {
+            const res = await fetch(`/api/messages/${otherId}`);
+            const d = await res.json();
+            if (d.ok) setMessages(d.messages || []);
 
-        const iv = setInterval(fetchMessages, 3000); // polling every 3s
+            // Mark unread messages as read (sent by other user)
+            await fetch("/api/messages/mark-read", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ senderId: Number(otherId) })
+            }).catch(() => { });
+        }
+
+        pollMessages(); // first fetch immediately
+        const iv = setInterval(pollMessages, 3000); // polling every 3s
+
         return () => clearInterval(iv);
     }, [otherId]);
 
@@ -64,8 +71,8 @@ export default function ChatPage() {
                             >
                                 <div
                                     className={`max-w-[70%] p-3 rounded-lg ${isMine
-                                            ? "bg-indigo-600 text-white rounded-br-none"
-                                            : "bg-gray-200 text-gray-900 rounded-bl-none"
+                                        ? "bg-indigo-600 text-white rounded-br-none"
+                                        : "bg-gray-200 text-gray-900 rounded-bl-none"
                                         }`}
                                 >
                                     <div>{m.content}</div>
