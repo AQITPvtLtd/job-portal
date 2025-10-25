@@ -1,4 +1,5 @@
 "use client";
+import BackButton from "@/components/backbutton/BackButton";
 import { useEffect, useState } from "react";
 
 const statusColors = {
@@ -80,6 +81,9 @@ export default function ApplicationsPage() {
                     ))
                 )}
             </ul>
+            <div className="mt-2">
+                <BackButton />
+            </div>
         </div>
     );
 }

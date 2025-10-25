@@ -1,25 +1,109 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Autosuggest from "react-autosuggest";
+import { City } from "country-state-city";
+import { Briefcase, MapPin, ArrowLeft, ArrowRight, Check, Building2, Users } from "lucide-react";
+import dynamic from "next/dynamic";
+import BackButton from "@/components/backbutton/BackButton";
+// Load React Quill only on client side (for rich text editor)
+const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
+import "react-quill-new/dist/quill.snow.css";
 
-const New = () => {
+const JOB_SUGGESTIONS = [
+    "Software Engineer",
+    "Frontend Developer",
+    "Backend Developer",
+    "Full Stack Developer",
+    "Digital Marketer",
+    "Graphic Designer",
+    "UI/UX Designer",
+    "Content Writer",
+    "Sales Executive",
+    "Customer Support",
+    "HR Manager",
+    "Web Developer",
+    "AI Engineer",
+    "Product Manager",
+    "Data Analyst",
+    "Marketing Executive",
+];
+
+export default function NewJobStepForm() {
     const router = useRouter();
+    const [step, setStep] = useState(1);
+    const [loading, setLoading] = useState(false);
+    const [msg, setMsg] = useState("");
+
     const [form, setForm] = useState({
+        company_name: "",
         title: "",
-        description: "",
         location: "",
-        type: "full-time",
+        type: "Full-time",
         salary_min: "",
         salary_max: "",
+        experience_required: "",
+        education_level: "",
+        skills: "",
+        openings: "",
+        description: "",
         expires_at: "",
     });
-    const [msg, setMsg] = useState("");
-    const [loading, setLoading] = useState(false);
+
+    // Autosuggest themes
+    const theme = {
+        container: "relative",
+        input:
+            "w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none",
+        suggestionsContainer:
+            "absolute z-10 mt-1 w-full bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden",
+        suggestionsList: "divide-y divide-gray-100",
+        suggestion:
+            "p-3 cursor-pointer hover:bg-indigo-50 transition-colors duration-150 text-[15px]",
+        suggestionHighlighted: "bg-indigo-100",
+    };
+
+    // Title suggestions
+    const [titleSuggestions, setTitleSuggestions] = useState([]);
+    const onTitleFetch = ({ value }) => {
+        const input = value.trim().toLowerCase();
+        setTitleSuggestions(
+            JOB_SUGGESTIONS.filter((j) => j.toLowerCase().includes(input))
+        );
+    };
+    const onTitleClear = () => setTitleSuggestions([]);
+    const getTitleValue = (s) => s;
+    const renderTitle = (s) => (
+        <div className="flex items-center gap-2 text-gray-800">
+            <Briefcase className="w-4 h-4 text-indigo-500" />
+            <span>{s}</span>
+        </div>
+    );
+
+    // Location suggestions
+    const allCities = City.getCitiesOfCountry("IN") || [];
+    const [locationSuggestions, setLocationSuggestions] = useState([]);
+    const onLocationFetch = ({ value }) => {
+        const input = value.trim().toLowerCase();
+        setLocationSuggestions(
+            allCities
+                .filter((c) => c.name.toLowerCase().includes(input))
+                .slice(0, 8)
+        );
+    };
+    const onLocationClear = () => setLocationSuggestions([]);
+    const getLocationValue = (s) => s.name;
+    const renderLocation = (s) => (
+        <div className="flex items-center gap-2 text-gray-800">
+            <MapPin className="w-4 h-4 text-rose-500" />
+            <span>{s.name}</span>
+        </div>
+    );
 
     async function onSubmit(e) {
         e.preventDefault();
-        setMsg("");
         setLoading(true);
+        setMsg("");
         try {
             const res = await fetch("/api/employer/jobs", {
                 method: "POST",
@@ -27,143 +111,313 @@ const New = () => {
                 body: JSON.stringify(form),
             });
             const data = await res.json();
-            if (data.ok) {
-                router.push("/dashboard/employer/jobs");
-            } else {
-                setMsg(data.message || "Error creating job");
-            }
-        } catch (err) {
+            if (data.ok) router.push("/dashboard/employer/jobs");
+            else setMsg(data.message || "Error creating job");
+        } catch {
             setMsg("Something went wrong!");
         } finally {
             setLoading(false);
         }
     }
 
+    const next = () => setStep((s) => s + 1);
+    const back = () => setStep((s) => s - 1);
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-indigo-100 py-10 px-6">
             <div className="max-w-3xl mx-auto bg-white shadow-xl rounded-2xl p-8">
-                <h2 className="text-3xl font-bold text-indigo-700 mb-6">
-                    🚀 Post a New Job
-                </h2>
+                <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-3xl font-bold text-indigo-700">
+                        🚀 Post a New Job
+                    </h2>
+                    <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                            <div
+                                key={s}
+                                className={`w-3 h-3 rounded-full ${s <= step ? "bg-indigo-600" : "bg-gray-300"
+                                    }`}
+                            />
+                        ))}
+                    </div>
+                </div>
 
                 <form onSubmit={onSubmit} className="space-y-5">
-                    {/* Job Title */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">
-                            Job Title *
-                        </label>
-                        <input
-                            required
-                            placeholder="e.g. Software Engineer"
-                            value={form.title}
-                            onChange={(e) => setForm({ ...form, title: e.target.value })}
-                            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-indigo-400 outline-none"
-                        />
-                    </div>
+                    {/* Step 1: Company & Job Basics */}
+                    {step === 1 && (
+                        <div className="space-y-5 animate-fadeIn">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                    Company Name *
+                                </label>
+                                <div className="relative">
+                                    <Building2 className="absolute left-3 top-3 text-indigo-500 w-5 h-5" />
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. TekBooster Pvt. Ltd."
+                                        value={form.company_name}
+                                        onChange={(e) =>
+                                            setForm({ ...form, company_name: e.target.value })
+                                        }
+                                        className="w-full border border-gray-300 rounded-lg p-3 pl-10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    />
+                                </div>
+                            </div>
 
-                    {/* Description */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">
-                            Job Description *
-                        </label>
-                        <textarea
-                            placeholder="Describe the role, responsibilities, and requirements..."
-                            value={form.description}
-                            onChange={(e) =>
-                                setForm({ ...form, description: e.target.value })
-                            }
-                            className="w-full border rounded-lg p-3 h-32 focus:ring-2 focus:ring-indigo-400 outline-none"
-                        />
-                    </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                    Job Title *
+                                </label>
+                                <Autosuggest
+                                    suggestions={titleSuggestions}
+                                    onSuggestionsFetchRequested={onTitleFetch}
+                                    onSuggestionsClearRequested={onTitleClear}
+                                    getSuggestionValue={getTitleValue}
+                                    renderSuggestion={renderTitle}
+                                    inputProps={{
+                                        placeholder: "e.g. Software Engineer",
+                                        value: form.title,
+                                        onChange: (_, { newValue }) =>
+                                            setForm({ ...form, title: newValue }),
+                                    }}
+                                    theme={theme}
+                                />
+                            </div>
 
-                    {/* Location */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">
-                            Location *
-                        </label>
-                        <input
-                            placeholder="e.g. Bangalore, India"
-                            value={form.location}
-                            onChange={(e) => setForm({ ...form, location: e.target.value })}
-                            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-indigo-400 outline-none"
-                        />
-                    </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                    Location *
+                                </label>
+                                <Autosuggest
+                                    suggestions={locationSuggestions}
+                                    onSuggestionsFetchRequested={onLocationFetch}
+                                    onSuggestionsClearRequested={onLocationClear}
+                                    getSuggestionValue={getLocationValue}
+                                    renderSuggestion={renderLocation}
+                                    inputProps={{
+                                        placeholder: "e.g. Bangalore, India",
+                                        value: form.location,
+                                        onChange: (_, { newValue }) =>
+                                            setForm({ ...form, location: newValue }),
+                                    }}
+                                    theme={theme}
+                                />
+                            </div>
 
-                    {/* Job Type */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">
-                            Job Type *
-                        </label>
-                        <select
-                            value={form.type}
-                            onChange={(e) => setForm({ ...form, type: e.target.value })}
-                            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-indigo-400 outline-none"
-                        >
-                            <option value="full-time">Full-time</option>
-                            <option value="part-time">Part-time</option>
-                            <option value="contract">Contract</option>
-                            <option value="internship">Internship</option>
-                            <option value="remote">Remote</option>
-                        </select>
-                    </div>
-
-                    {/* Salary Range */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">
-                            Salary Range (per month)
-                        </label>
-                        <div className="flex gap-3">
-                            <input
-                                type="number"
-                                placeholder="Min"
-                                value={form.salary_min}
-                                onChange={(e) =>
-                                    setForm({ ...form, salary_min: e.target.value })
-                                }
-                                className="w-1/2 border rounded-lg p-3 focus:ring-2 focus:ring-indigo-400 outline-none"
-                            />
-                            <input
-                                type="number"
-                                placeholder="Max"
-                                value={form.salary_max}
-                                onChange={(e) =>
-                                    setForm({ ...form, salary_max: e.target.value })
-                                }
-                                className="w-1/2 border rounded-lg p-3 focus:ring-2 focus:ring-indigo-400 outline-none"
-                            />
+                            <div className="flex justify-between">
+                                <BackButton />
+                                <button
+                                    type="button"
+                                    onClick={next}
+                                    className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg shadow hover:bg-indigo-700 flex items-center gap-2"
+                                >
+                                    Continue <ArrowRight className="w-4 h-4" />
+                                </button>
+                            </div>
                         </div>
-                    </div>
+                    )}
 
-                    {/* Expiry Date */}
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-1">
-                            Application Deadline *
-                        </label>
-                        <input
-                            type="date"
-                            value={form.expires_at}
-                            onChange={(e) =>
-                                setForm({ ...form, expires_at: e.target.value })
-                            }
-                            className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-indigo-400 outline-none"
-                        />
-                    </div>
+                    {/* Step 2: Job Type, Openings & Salary */}
+                    {step === 2 && (
+                        <div className="space-y-5 animate-fadeIn">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                    Job Type *
+                                </label>
+                                <select
+                                    value={form.type}
+                                    onChange={(e) => setForm({ ...form, type: e.target.value })}
+                                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                >
+                                    <option>Full-time</option>
+                                    <option>Part-time</option>
+                                    <option>Contract</option>
+                                    <option>Temporary</option>
+                                    <option>Internship</option>
+                                    <option>Freelance</option>
+                                    <option>Remote</option>
+                                </select>
+                            </div>
 
-                    {/* Submit */}
-                    <div className="flex justify-between items-center">
-                        {msg && <p className="text-red-500 text-sm">{msg}</p>}
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition cursor-pointer"
-                        >
-                            {loading ? "Creating..." : "Create Job"}
-                        </button>
-                    </div>
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                    Number of Openings *
+                                </label>
+                                <div className="relative">
+                                    <Users className="absolute left-3 top-3 text-indigo-500 w-5 h-5" />
+                                    <input
+                                        type="number"
+                                        placeholder="e.g. 3"
+                                        value={form.openings}
+                                        onChange={(e) =>
+                                            setForm({ ...form, openings: e.target.value })
+                                        }
+                                        className="w-full border border-gray-300 rounded-lg p-3 pl-10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex gap-3">
+                                <input
+                                    type="number"
+                                    placeholder="Salary Min (₹)"
+                                    value={form.salary_min}
+                                    onChange={(e) =>
+                                        setForm({ ...form, salary_min: e.target.value })
+                                    }
+                                    className="w-1/2 border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                />
+                                <input
+                                    type="number"
+                                    placeholder="Salary Max (₹)"
+                                    value={form.salary_max}
+                                    onChange={(e) =>
+                                        setForm({ ...form, salary_max: e.target.value })
+                                    }
+                                    className="w-1/2 border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                />
+                            </div>
+
+                            <div className="flex justify-between">
+                                <button
+                                    type="button"
+                                    onClick={back}
+                                    className="flex items-center gap-2 px-5 py-3 rounded-lg border text-gray-600 hover:bg-gray-100"
+                                >
+                                    <ArrowLeft className="w-4 h-4" /> Back
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={next}
+                                    className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg shadow hover:bg-indigo-700 flex items-center gap-2"
+                                >
+                                    Continue <ArrowRight className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Step 3: Qualifications */}
+                    {step === 3 && (
+                        <div className="space-y-5 animate-fadeIn">
+                            <input
+                                placeholder="Experience Required (e.g. 2-4 years)"
+                                value={form.experience_required}
+                                onChange={(e) =>
+                                    setForm({ ...form, experience_required: e.target.value })
+                                }
+                                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                            />
+                            <input
+                                placeholder="Education Level (e.g. Bachelor's Degree)"
+                                value={form.education_level}
+                                onChange={(e) =>
+                                    setForm({ ...form, education_level: e.target.value })
+                                }
+                                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                            />
+                            <input
+                                placeholder="Required Skills (comma separated)"
+                                value={form.skills}
+                                onChange={(e) => setForm({ ...form, skills: e.target.value })}
+                                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                            />
+
+                            <div className="flex justify-between">
+                                <button
+                                    type="button"
+                                    onClick={back}
+                                    className="flex items-center gap-2 px-5 py-3 rounded-lg border text-gray-600 hover:bg-gray-100"
+                                >
+                                    <ArrowLeft className="w-4 h-4" /> Back
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={next}
+                                    className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg shadow hover:bg-indigo-700 flex items-center gap-2"
+                                >
+                                    Continue <ArrowRight className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Step 4: Description */}
+                    {step === 4 && (
+                        <div className="space-y-5 animate-fadeIn">
+                            <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                Job Description *
+                            </label>
+                            <ReactQuill
+                                theme="snow"
+                                value={form.description}
+                                onChange={(value) => setForm({ ...form, description: value })}
+                                className="bg-white rounded-lg"
+                                placeholder="Write detailed responsibilities, qualifications, and benefits..."
+                            />
+
+                            <div className="flex justify-between">
+                                <button
+                                    type="button"
+                                    onClick={back}
+                                    className="flex items-center gap-2 px-5 py-3 rounded-lg border text-gray-600 hover:bg-gray-100"
+                                >
+                                    <ArrowLeft className="w-4 h-4" /> Back
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={next}
+                                    className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg shadow hover:bg-indigo-700 flex items-center gap-2"
+                                >
+                                    Continue <ArrowRight className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Step 5: Expiry Date + Submit */}
+                    {step === 5 && (
+                        <div className="space-y-5 animate-fadeIn">
+                            <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                Application Deadline
+                            </label>
+                            <input
+                                type="date"
+                                value={form.expires_at}
+                                onChange={(e) =>
+                                    setForm({ ...form, expires_at: e.target.value })
+                                }
+                                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                            />
+
+                            <div className="flex justify-between items-center">
+                                <button
+                                    type="button"
+                                    onClick={back}
+                                    className="flex items-center gap-2 px-5 py-3 rounded-lg border text-gray-600 hover:bg-gray-100"
+                                >
+                                    <ArrowLeft className="w-4 h-4" /> Back
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="bg-green-600 hover:bg-green-700 text-white cursor-pointer font-semibold px-6 py-3 rounded-lg shadow-md transition flex items-center gap-2"
+                                >
+                                    {loading ? "Publishing..." : "Publish Job"}{" "}
+                                    <Check className="w-4 h-4" />
+                                </button>
+                                <div className="mt-2">
+                                    <BackButton />
+                                </div>
+                            </div>
+
+                            {msg && <p className="text-red-500 text-sm">{msg}</p>}
+                        </div>
+
+                    )}
                 </form>
             </div>
+
         </div>
     );
-};
-
-export default New;
+}

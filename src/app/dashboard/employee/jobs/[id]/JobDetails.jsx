@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import BackButton from "@/components/backbutton/BackButton";
 
 export default function JobDetails() {
     const { id } = useParams();
@@ -48,9 +49,12 @@ export default function JobDetails() {
             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
                 {/* ✅ Job Details (75%) */}
-                <div className="lg:col-span-3 bg-white p-6 shadow-md rounded-xl space-y-4">
+                <div className="lg:col-span-3 bg-white p-6 shadow-md rounded-xl space-y-2">
                     <h1 className="text-2xl font-bold text-indigo-800">{job.title}</h1>
-                    <p className="text-gray-600">{job.description}</p>
+                    <p className="text-gray-600 max-h-64 overflow-y-auto pr-2"
+                        dangerouslySetInnerHTML={{ __html: job.description }}
+                    ></p>
+                    <p><b>Company Name:</b> {job.company_name}</p>
                     <p><b>Location:</b> {job.location}</p>
                     <p><b>Type:</b> {job.type}</p>
                     <p><b>Salary:</b> ₹{job.salary_min} - ₹{job.salary_max}</p>
@@ -86,6 +90,9 @@ export default function JobDetails() {
                         ))}
                     </div>
                 </div>
+            </div>
+            <div className="mt-2">
+                <BackButton />
             </div>
         </div>
     );

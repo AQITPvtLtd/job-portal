@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { BsBell } from "react-icons/bs";
 import Link from "next/link";
 
 export default function NotificationsBell() {
@@ -16,7 +17,9 @@ export default function NotificationsBell() {
     }, []);
     return (
         <Link href="/dashboard/messages" className="relative px-2">
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeWidth={2} d="M7 8h10M7 12h8m-8 4h6" /></svg>
+            {/* <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeWidth={2} d="M7 8h10M7 12h8m-8 4h6" /></svg> */}
+             <BsBell size={22} className="text-gray-300" />
+          
             {count > 0 && <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{count}</span>}
         </Link>
     );

@@ -63,11 +63,11 @@ export async function PUT(req, context) {
                 title,
                 description || "",
                 location || "",
-                type || "full-time",
+                type || "Full-time",
                 salary_min || null,
                 salary_max || null,
                 expires_at || null,
-                status || "published",
+                status || "Published",
                 jobId,
             ]
         );
