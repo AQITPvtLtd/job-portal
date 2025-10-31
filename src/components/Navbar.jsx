@@ -28,6 +28,15 @@ export default function Navbar() {
                 ? "/dashboard/employer/edit-profile"
                 : "#";
 
+    // ✅ Logout handler
+    const handleLogout = () => {
+        const baseUrl = typeof window !== 'undefined' ? window.location.origin : '/';
+        signOut({
+            callbackUrl: baseUrl,
+            redirect: true
+        });
+    };
+
     // ✅ Fetch user's profile data (image + name) from database
     useEffect(() => {
         const fetchProfileData = async () => {
@@ -161,7 +170,7 @@ export default function Navbar() {
                                             </Link>
                                             <button
                                                 onClick={() => {
-                                                    signOut();
+                                                    handleLogout(); // ✅ FIXED
                                                     setDropdownOpen(false);
                                                 }}
                                                 className="flex items-center gap-3 w-full text-left px-4 py-3 hover:bg-red-50 transition-colors text-red-600 border-t border-gray-200"
@@ -240,13 +249,14 @@ export default function Navbar() {
                                 </div>
                             </div>
 
-                            <button className="flex items-center gap-3 w-full px-4 py-3 bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors">
+                            <Link
+                                href="/dashboard/messages"
+                                onClick={() => setMenuOpen(false)}
+                                className="flex items-center gap-3 w-full px-4 py-3 bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
+                            >
                                 <BsBell size={20} className="text-gray-300" />
-                                <span className="text-sm font-medium">Notifications</span>
-                                <span className="ml-auto w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                                    3
-                                </span>
-                            </button>
+                                <span className="text-sm font-medium">Messages</span>
+                            </Link>
 
                             <Link
                                 href={profileRoute}
@@ -259,7 +269,7 @@ export default function Navbar() {
 
                             <button
                                 onClick={() => {
-                                    signOut();
+                                    handleLogout(); // ✅ FIXED
                                     setMenuOpen(false);
                                 }}
                                 className="flex items-center gap-3 w-full text-left px-4 py-3 bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
