@@ -29,21 +29,13 @@ export default function Navbar() {
                 : "#";
 
     // ✅ Logout handler
-    // const handleLogout = () => {
-    //     const baseUrl = typeof window !== 'undefined' ? window.location.origin : '/';
-    //     signOut({
-    //         callbackUrl: baseUrl,
-    //         redirect: true
-    //     });
-    // };
-
     const handleLogout = () => {
-    signOut({
-        callbackUrl: process.env.NEXT_PUBLIC_BASE_URL + '/login',
-        redirect: true
-    });
-};
-
+        const baseUrl = typeof window !== 'undefined' ? window.location.origin : '/';
+        signOut({ 
+            callbackUrl: baseUrl,
+            redirect: true 
+        });
+    };
 
     // ✅ Fetch user's profile data (image + name) from database
     useEffect(() => {
