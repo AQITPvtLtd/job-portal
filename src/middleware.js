@@ -15,7 +15,7 @@ export async function middleware(req) {
         return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
 
-    if (url.pathname.startsWith("/dashboard/employee") && token.role !== "employee") {
+    if (url.pathname.startsWith("/dashboard/employee/jobs") && token.role !== "employee") {
         return NextResponse.redirect(new URL("/unauthorized", req.url));
     }
 

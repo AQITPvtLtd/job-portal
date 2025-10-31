@@ -10,7 +10,7 @@ export default function Home() {
     userRole === "employer"
       ? "/dashboard/employer"
       : userRole === "employee"
-        ? "/dashboard/employee"
+        ? "/dashboard/employee/jobs"
         : "/dashboard";
 
   return (

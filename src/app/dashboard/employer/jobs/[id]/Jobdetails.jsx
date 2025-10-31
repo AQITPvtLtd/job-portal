@@ -159,7 +159,7 @@ export default function JobDetails() {
                                     </button>
 
                                     <Link
-                                        href={`/dashboard/messages/${a.employee_id}`}
+                                        href={`/dashboard/messages`}
                                         className="flex items-center gap-1 bg-indigo-600 text-white px-3 py-1 rounded-lg text-sm font-medium hover:bg-indigo-700 transition"
                                     >
                                         <MessageSquare className="w-4 h-4" /> Message
@@ -175,14 +175,14 @@ export default function JobDetails() {
                                             <FileText className="w-4 h-4" /> Resume
                                         </Link>
                                     ) : a.resume_url ? (
-                                        <a
+                                        <Link
                                             href={a.resume_url}
                                             target="_blank"
                                             rel="noreferrer"
                                             className="flex items-center gap-1 text-indigo-600 text-sm font-medium hover:underline"
                                         >
                                             <FileText className="w-4 h-4" /> Resume
-                                        </a>
+                                        </Link>
                                     ) : null}
                                 </div>
                             </div>
@@ -198,8 +198,8 @@ export default function JobDetails() {
                 )}
             </div>
             <div className="mt-5 lg:ml-24">
-                            <BackButton />
-                        </div>
+                <BackButton />
+            </div>
         </div>
     );
 }

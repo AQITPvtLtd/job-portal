@@ -1,9 +1,9 @@
 import React from 'react'
-import ThreadsPage from './Messages'
+import MessagesPage from './Messages'
 const page = () => {
     return (
         <div>
-            <ThreadsPage />
+           <MessagesPage />
         </div>
     )
 }

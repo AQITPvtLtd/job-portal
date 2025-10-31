@@ -1,9 +1,10 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
+import BackButton from "@/components/backbutton/BackButton";
 export default function ApplyForm({ jobId }) {
     const [step, setStep] = useState(1);
+        const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -28,6 +29,8 @@ export default function ApplyForm({ jobId }) {
 
     async function handleSubmit() {
         const body = new FormData();
+                setIsSubmitting(true);
+
         body.append("job_id", jobId);
         Object.entries(formData).forEach(([key, value]) => body.append(key, value));
 
@@ -105,11 +108,15 @@ export default function ApplyForm({ jobId }) {
                     </div>
                     <button
                         onClick={() => setStep(2)}
-                        className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg transition"
+                        className="mt-4 bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg transition cursor-pointer"
                     >
                         Next →
                     </button>
+                    <div className="mt-2">
+                        <BackButton />
+                    </div>
                 </>
+
             )}
 
             {step === 2 && (
@@ -124,13 +131,13 @@ export default function ApplyForm({ jobId }) {
                             className="w-full"
                             onChange={handleChange}
                         />
-                        <textarea
+                        {/* <textarea
                             name="coverLetter"
                             placeholder="Cover Letter"
                             className="w-full border rounded-lg p-2"
                             value={formData.coverLetter}
                             onChange={handleChange}
-                        />
+                        /> */}
                         <input
                             type="text"
                             name="experience"
@@ -157,7 +164,7 @@ export default function ApplyForm({ jobId }) {
                         </button>
                         <button
                             onClick={() => setStep(3)}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition"
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition cursor-pointer"
                         >
                             Next →
                         </button>
@@ -187,23 +194,27 @@ export default function ApplyForm({ jobId }) {
                         </button>
                         <button
                             onClick={handleSubmit}
-                            disabled={!formData.confirm}
-                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition disabled:opacity-50"
+                            disabled={!formData.confirm || isSubmitting}
+                            className="bg-green-600 hover:bg-green-700 cursor-pointer text-white px-6 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed min-w-[180px]"
                         >
-                            Submit Application
+                            {isSubmitting ? (
+                                <span className="flex items-center justify-center gap-1">
+                                    Submitting
+                                    <span className="flex gap-1">
+                                        <span className="animate-bounce">.</span>
+                                        <span className="animate-bounce" style={{ animationDelay: '0.1s' }}>.</span>
+                                        <span className="animate-bounce" style={{ animationDelay: '0.2s' }}>.</span>
+                                    </span>
+                                </span>
+                            ) : (
+                                "Submit Application"
+                            )}
                         </button>
                     </div>
                 </>
             )}
 
             {status && <p className="mt-4 text-center text-green-700 font-medium">{status}</p>}
-
-
-            <div className="mt-2">
-                <BackButton />
-            </div>
         </div>
-
-
     );
 }

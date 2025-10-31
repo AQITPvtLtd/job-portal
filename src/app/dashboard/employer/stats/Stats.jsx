@@ -4,6 +4,8 @@ import {
     BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
     PieChart, Pie, Cell, LineChart, Line, CartesianGrid, Legend
 } from "recharts";
+import Link from "next/link";
+import { PlusCircle } from "lucide-react";
 
 const COLORS = ["#6366f1", "#22c55e", "#f59e0b", "#ef4444", "#3b82f6"];
 
@@ -23,8 +25,16 @@ const Stats = () => {
 
     return (
         <div className="p-8 min-h-screen bg-gray-50">
-            <h1 className="text-3xl font-bold mb-6 text-indigo-700">Employer Dashboard</h1>
-
+            <div className="flex justify-between items-center">
+                <h1 className="text-3xl font-bold mb-6 text-indigo-700">Employer Dashboard</h1>
+                <Link
+                    href="/dashboard/employer/jobs/new"
+                    className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2 rounded-lg shadow transition"
+                >
+                    <PlusCircle className="w-5 h-5" />
+                    Post New Job
+                </Link>
+            </div>
             {/* Top Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                 <div className="bg-white p-6 rounded-xl shadow text-center">

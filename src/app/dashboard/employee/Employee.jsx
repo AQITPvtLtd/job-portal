@@ -22,10 +22,7 @@ export default function EmployeeDashboard() {
 
   return (
     <div className="p-8 min-h-screen bg-gradient-to-br from-indigo-100 via-white to-indigo-50">
-      <h1 className="text-3xl font-bold text-indigo-800 mb-8">
-        🎉 Welcome to Your Dashboard
-      </h1>
-
+      
       <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cards.map((card, idx) => (
           <Link key={idx} href={card.href}>

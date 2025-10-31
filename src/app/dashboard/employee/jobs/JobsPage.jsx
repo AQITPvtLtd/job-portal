@@ -197,9 +197,6 @@ export default function JobsPage() {
                     </p>
                 )}
             </div>
-          <div className="mt-2">
-                          <BackButton />
-                      </div>
         </div>
     );
 }

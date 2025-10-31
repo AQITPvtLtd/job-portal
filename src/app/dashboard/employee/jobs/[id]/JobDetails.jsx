@@ -66,6 +66,9 @@ export default function JobDetails() {
                     >
                         Apply Now
                     </button>
+                    <div className="mt-2">
+                        <BackButton />
+                    </div>
                 </div>
 
                 {/* ✅ Jobs Sidebar (25%) */}
@@ -91,9 +94,7 @@ export default function JobDetails() {
                     </div>
                 </div>
             </div>
-            <div className="mt-2">
-                <BackButton />
-            </div>
+
         </div>
     );
 }

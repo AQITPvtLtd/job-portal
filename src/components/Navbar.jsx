@@ -111,17 +111,11 @@ export default function Navbar() {
                             <>
                                 {/* Bell Icon */}
                                 <Link
-                                    href="/"
+                                    href="/dashboard/messages"
                                     className="relative p-2 hover:bg-gray-800 rounded-lg transition-colors"
-                                    aria-label="Notifications"
                                 >
-                                    {/* <BsBell size={22} className="text-gray-300" /> */}
-
                                     <NotificationsBell />
-                                    <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                                 </Link>
-
-
 
                                 {/* Profile Dropdown */}
                                 <div className="relative" ref={dropdownRef}>
