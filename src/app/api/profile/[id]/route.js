@@ -105,8 +105,6 @@
 // }
 
 
-
-
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
@@ -147,7 +145,7 @@ export async function GET(req, context) {
     }
 }
 
-// PUT (update profile) - Works for both employee and employer
+// PUT (update profile) - Updates both users table and employee/employer table
 export async function PUT(req, context) {
     try {
         const { id } = await context.params;
@@ -186,6 +184,15 @@ export async function PUT(req, context) {
                 team_size
             } = body;
 
+            // ✅ 1️⃣ UPDATE USERS TABLE
+            await db.query(
+                `UPDATE users 
+                 SET name = ?, email = ?, phone = ? 
+                 WHERE id = ?`,
+                [company_name, email, phone, user_id]
+            );
+
+            // ✅ 2️⃣ UPDATE EMPLOYERS TABLE
             await db.query(
                 `UPDATE employers
                  SET company_name = ?, 
@@ -226,6 +233,15 @@ export async function PUT(req, context) {
                 education
             } = body;
 
+            // ✅ 1️⃣ UPDATE USERS TABLE
+            await db.query(
+                `UPDATE users 
+                 SET name = ?, email = ?, phone = ? 
+                 WHERE id = ?`,
+                [full_name, email, phone, user_id]
+            );
+
+            // ✅ 2️⃣ UPDATE EMPLOYEES TABLE
             await db.query(
                 `UPDATE employees
                  SET full_name = ?, 

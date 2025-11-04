@@ -226,7 +226,7 @@ export default function LoginPage() {
                                 <span className="font-semibold text-gray-700">Continue with Google</span>
                             </button>
 
-                            <button
+                            {/* <button
                                 onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
                                 className="w-full py-3.5 cursor-pointer border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center gap-3"
                             >
@@ -234,7 +234,7 @@ export default function LoginPage() {
                                     <path d="M12,0C5.37,0,0,5.37,0,12c0,5.31,3.44,9.8,8.21,11.39.6.11.82-.26.82-.57,0-.29-.01-1.23-.01-2.24-3.02.56-3.8-.74-4.04-1.41-.14-.35-.72-1.41-1.23-1.7-.42-.23-1.02-.78-.02-.8.95-.02,1.62.87,1.85,1.23,1.08,1.82,2.81,1.31,3.5.99.11-.78.42-1.31.77-1.61-2.67-.3-5.46-1.34-5.46-5.93,0-1.31.47-2.39,1.23-3.23-.12-.3-.54-1.53.12-3.18,0,0,1.01-.32,3.3,1.23.96-.27,1.98-.41,3-.41s2.04.14,3,.41c2.29-1.56,3.3-1.23,3.3-1.23.66,1.65.24,2.88.12,3.18.77.84,1.23,1.91,1.23,3.23,0,4.61-2.81,5.63-5.48,5.93.43.38.81,1.1.81,2.22,0,1.61-.01,2.9-.01,3.3,0,.32.23.69.82.57A12.02,12.02,0,0,0,24,12C24,5.37,18.63,0,12,0Z" />
                                 </svg>
                                 <span className="font-semibold text-gray-700">Continue with GitHub</span>
-                            </button>
+                            </button> */}
                         </div>
 
                         {/* Sign Up */}
