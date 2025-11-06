@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Building2, Mail, Phone, Globe, MapPin, FileText, Briefcase, Users, Upload } from "lucide-react";
 import Swal from "sweetalert2";
+import BackButton from "@/components/backbutton/BackButton";
 
 export default function EmployerEditProfile() {
     const { data: session, status } = useSession();
@@ -83,28 +84,28 @@ export default function EmployerEditProfile() {
 
             const img = new Image();
             const objectUrl = URL.createObjectURL(file);
-            
+
             img.onload = () => {
                 URL.revokeObjectURL(objectUrl);
-                
+
                 if (img.width < 200 || img.height < 200) {
                     reject("Logo should be at least 200x200 pixels");
                     return;
                 }
-                
+
                 if (img.width > 2000 || img.height > 2000) {
                     reject("Logo should not exceed 2000x2000 pixels");
                     return;
                 }
-                
+
                 resolve(true);
             };
-            
+
             img.onerror = () => {
                 URL.revokeObjectURL(objectUrl);
                 reject("Invalid image file");
             };
-            
+
             img.src = objectUrl;
         });
     };
@@ -114,7 +115,7 @@ export default function EmployerEditProfile() {
         if (!selectedFile) return;
 
         setImageError("");
-        
+
         try {
             await validateImage(selectedFile);
             setFile(selectedFile);
@@ -172,7 +173,7 @@ export default function EmployerEditProfile() {
                 // ✅ Refresh profile data after update
                 const refreshRes = await fetch(`/api/profile/${profile.user_id}`);
                 const refreshedData = await refreshRes.json();
-                
+
                 if (refreshRes.ok && !refreshedData.error) {
                     setProfile((prev) => ({
                         ...prev,
@@ -235,8 +236,10 @@ export default function EmployerEditProfile() {
 
     return (
         <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
-            <h2 className="text-3xl font-bold mb-8 text-gray-800 border-b pb-4">Edit Company Profile</h2>
-
+            <div className="flex border-b pb-4 mb-8 justify-between">
+                <h2 className="text-3xl font-bold text-gray-800 ">Edit Company Profile</h2>
+                <BackButton />
+            </div>
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Company Logo Section */}
                 <div className="bg-gray-50 p-6 rounded-lg">
@@ -256,7 +259,7 @@ export default function EmployerEditProfile() {
                                 type="file"
                                 accept="image/jpeg,image/jpg,image/png,image/webp"
                                 onChange={handleImageChange}
-                                className="w-full border border-gray-300 rounded p-2 text-sm"
+                                className="w-full dark:text-black border border-gray-300 rounded p-2 text-sm"
                             />
                             {imageError && (
                                 <p className="text-red-600 text-xs mt-1">⚠️ {imageError}</p>
@@ -282,7 +285,7 @@ export default function EmployerEditProfile() {
                                 placeholder="Enter company name"
                                 value={profile.company_name}
                                 onChange={(e) => setProfile({ ...profile, company_name: e.target.value })}
-                                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full dark:text-black border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 required
                             />
                         </div>
@@ -297,7 +300,7 @@ export default function EmployerEditProfile() {
                                 placeholder="contact@company.com"
                                 value={profile.email}
                                 onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full dark:text-black border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 required
                             />
                         </div>
@@ -312,7 +315,7 @@ export default function EmployerEditProfile() {
                                 placeholder="+1 (555) 123-4567"
                                 value={profile.phone}
                                 onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full dark:text-black border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                         </div>
 
@@ -326,7 +329,7 @@ export default function EmployerEditProfile() {
                                 placeholder="https://www.company.com"
                                 value={profile.website}
                                 onChange={(e) => setProfile({ ...profile, website: e.target.value })}
-                                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full dark:text-black border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                         </div>
 
@@ -340,7 +343,7 @@ export default function EmployerEditProfile() {
                                 placeholder="123 Business St, City, State, ZIP"
                                 value={profile.address}
                                 onChange={(e) => setProfile({ ...profile, address: e.target.value })}
-                                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full dark:text-black border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                         </div>
                     </div>
@@ -360,7 +363,7 @@ export default function EmployerEditProfile() {
                                 placeholder="e.g., Technology, Healthcare, Finance"
                                 value={profile.industry}
                                 onChange={(e) => setProfile({ ...profile, industry: e.target.value })}
-                                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full dark:text-black border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                         </div>
 
@@ -372,7 +375,7 @@ export default function EmployerEditProfile() {
                             <select
                                 value={profile.team_size}
                                 onChange={(e) => setProfile({ ...profile, team_size: e.target.value })}
-                                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full dark:text-black border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             >
                                 <option value="">Select team size</option>
                                 <option value="1-10">1-10 employees</option>
@@ -397,7 +400,7 @@ export default function EmployerEditProfile() {
                         placeholder="Tell us about your company, mission, values, and what makes you unique..."
                         value={profile.about}
                         onChange={(e) => setProfile({ ...profile, about: e.target.value })}
-                        className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full dark:text-black border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         rows="5"
                     />
                 </div>

@@ -98,7 +98,7 @@ export default function JobsList({ jobs, selectedJobId, onSelectJob, loading }) 
                                 placeholder: "Job title or keyword",
                                 value: search,
                                 onChange: (_, { newValue }) => setSearch(newValue),
-                                className: "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm",
+                                className: "w-full dark:text-black pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm",
                             }}
                             theme={{
                                 suggestionsContainer: "absolute bg-white shadow-lg z-50 w-full rounded-b-lg border border-gray-200 mt-1",
@@ -119,7 +119,7 @@ export default function JobsList({ jobs, selectedJobId, onSelectJob, loading }) 
                                 placeholder: "City, state or remote",
                                 value: location,
                                 onChange: (_, { newValue }) => setLocation(newValue),
-                                className: "w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm",
+                                className: "w-full dark:text-black pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm",
                             }}
                             theme={{
                                 suggestionsContainer: "absolute bg-white shadow-lg z-50 w-full rounded-b-lg border border-gray-200 mt-1",

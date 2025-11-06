@@ -129,7 +129,7 @@ export default function LoginPage() {
                                         placeholder="you@example.com"
                                         value={form.email}
                                         onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                        className="w-full pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+                                        className="w-full dark:text-black pl-12 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
                                         required
                                     />
                                 </div>
@@ -147,7 +147,7 @@ export default function LoginPage() {
                                         placeholder="Enter your password"
                                         value={form.password}
                                         onChange={(e) => setForm({ ...form, password: e.target.value })}
-                                        className="w-full pl-12 pr-12 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+                                        className="w-full dark:text-black pl-12 pr-12 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
                                         required
                                     />
                                     <button
@@ -213,7 +213,7 @@ export default function LoginPage() {
 
                         {/* Social Login */}
                         <div className="space-y-3">
-                            <button
+                            {/* <button
                                 onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
                                 className="w-full py-3.5 border-2 cursor-pointer border-gray-200 rounded-xl hover:bg-gray-50 transition-all flex items-center justify-center gap-3"
                             >
@@ -224,7 +224,7 @@ export default function LoginPage() {
                                     <path fill="#FBBC05" d="M5.28,14.27c-.24-.71-.37-1.47-.37-2.27s.13-1.56.37-2.27L1.24,6.65C.44,8.26,0,10.08,0,12s.44,3.73,1.24,5.33L5.28,14.27z" />
                                 </svg>
                                 <span className="font-semibold text-gray-700">Continue with Google</span>
-                            </button>
+                            </button> */}
 
                             {/* <button
                                 onClick={() => signIn("github", { callbackUrl: "/dashboard" })}

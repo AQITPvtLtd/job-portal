@@ -72,13 +72,13 @@ export default function ApplyForm({ jobId }) {
             {/* Step Content */}
             {step === 1 && (
                 <>
-                    <h2 className="text-xl font-bold mb-4">Personal Information</h2>
+                    <h2 className="text-xl font-bold mb-4 dark:text-black">Personal Information</h2>
                     <div className="space-y-3">
                         <input
                             type="text"
                             name="name"
                             placeholder="Full Name"
-                            className="w-full border rounded-lg p-2"
+                            className="w-full dark:text-black border rounded-lg p-2"
                             value={formData.name}
                             onChange={handleChange}
                         />
@@ -86,7 +86,7 @@ export default function ApplyForm({ jobId }) {
                             type="email"
                             name="email"
                             placeholder="Email"
-                            className="w-full border rounded-lg p-2"
+                            className="w-full dark:text-black border rounded-lg p-2"
                             value={formData.email}
                             onChange={handleChange}
                         />
@@ -94,14 +94,14 @@ export default function ApplyForm({ jobId }) {
                             type="text"
                             name="phone"
                             placeholder="Phone"
-                            className="w-full border rounded-lg p-2"
+                            className="w-full dark:text-black border rounded-lg p-2"
                             value={formData.phone}
                             onChange={handleChange}
                         />
                         <textarea
                             name="address"
                             placeholder="Address"
-                            className="w-full border rounded-lg p-2"
+                            className="w-full dark:text-black border rounded-lg p-2"
                             value={formData.address}
                             onChange={handleChange}
                         />
@@ -121,14 +121,14 @@ export default function ApplyForm({ jobId }) {
 
             {step === 2 && (
                 <>
-                    <h2 className="text-xl font-bold mb-4">Professional Information</h2>
+                    <h2 className="text-xl font-bold mb-4 dark:text-black">Professional Information</h2>
                     <div className="space-y-3">
-                        <label className="block text-sm font-medium">Upload Resume</label>
+                        <label className="block text-sm font-medium dark:text-black">Upload Resume</label>
                         <input
                             type="file"
                             name="resume"
                             accept=".pdf,.doc,.docx"
-                            className="w-full"
+                            className="w-full dark:text-black"
                             onChange={handleChange}
                         />
                         {/* <textarea
@@ -142,7 +142,7 @@ export default function ApplyForm({ jobId }) {
                             type="text"
                             name="experience"
                             placeholder="Experience (years)"
-                            className="w-full border rounded-lg p-2"
+                            className="w-full dark:text-black border rounded-lg p-2"
                             value={formData.experience}
                             onChange={handleChange}
                         />
@@ -150,7 +150,7 @@ export default function ApplyForm({ jobId }) {
                             type="text"
                             name="skills"
                             placeholder="Skills (comma separated)"
-                            className="w-full border rounded-lg p-2"
+                            className="w-full dark:text-black border rounded-lg p-2"
                             value={formData.skills}
                             onChange={handleChange}
                         />
@@ -174,9 +174,9 @@ export default function ApplyForm({ jobId }) {
 
             {step === 3 && (
                 <>
-                    <h2 className="text-xl font-bold mb-4">Confirmation</h2>
-                    <p className="mb-3">✅ Please review your details before submitting.</p>
-                    <label className="flex items-center space-x-2 mb-4">
+                    <h2 className="text-xl font-bold mb-4 dark:text-black">Confirmation</h2>
+                    <p className="mb-3 dark:text-black">✅ Please review your details before submitting.</p>
+                    <label className="flex items-center space-x-2 mb-4 dark:text-black">
                         <input
                             type="checkbox"
                             name="confirm"

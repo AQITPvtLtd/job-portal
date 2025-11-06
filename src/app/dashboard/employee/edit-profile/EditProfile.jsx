@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { User, Mail, Phone, MapPin, FileText, Briefcase, Award, GraduationCap, Upload, Link } from "lucide-react";
 import Swal from "sweetalert2";
+import BackButton from "@/components/backbutton/BackButton";
 
 export default function EditProfile() {
     const { data: session, status } = useSession();
@@ -263,7 +264,10 @@ export default function EditProfile() {
 
     return (
         <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
-            <h2 className="text-3xl font-bold mb-8 text-gray-800 border-b pb-4">Edit Your Profile</h2>
+            <div className="mb-8 border-b pb-4 flex justify-between">
+                <h2 className="text-3xl font-bold  text-gray-800">Edit Your Profile</h2>
+                <BackButton />
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Profile Image Section */}
@@ -298,7 +302,7 @@ export default function EditProfile() {
 
                 {/* Personal Information */}
                 <div className="bg-gray-50 p-6 rounded-lg">
-                    <h3 className="text-lg font-semibold mb-4 text-gray-700">Personal Information</h3>
+                    <h3 className="text-lg font-semibold mb-4 text-gray-700 dark:text-black">Personal Information</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">

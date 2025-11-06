@@ -9,12 +9,14 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        {/* Wrap पूरा app inside SessionProvider */}
-        <SessionProvider>
-          <Navbar />
-          {children}
-          <Toaster position="top-right" />
-        </SessionProvider>
+        <div className="dark:bg-white">
+          {/* Wrap पूरा app inside SessionProvider */}
+          <SessionProvider>
+            <Navbar />
+            {children}
+            <Toaster position="top-right" />
+          </SessionProvider>
+        </div>
       </body>
     </html>
   );

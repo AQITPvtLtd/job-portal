@@ -20,12 +20,45 @@ export default function Signup() {
     });
     const [error, setError] = useState("");
 
-    // Handle next/previous step
-    const nextStep = () => setStep(step + 1);
-    const prevStep = () => setStep(step - 1);
+    // Handle next step with field validation
+    const nextStep = () => {
+        setError(""); // reset error before checking
 
+        if (step === 1) {
+            if (!form.name || !form.email) {
+                setError("Please fill in all fields before continuing.");
+                return;
+            }
+        }
+
+        if (step === 2) {
+            if (!form.phone || !form.role) {
+                setError("Please fill in all fields before continuing.");
+                return;
+            }
+        }
+
+        setStep(step + 1);
+    };
+
+    // Handle previous step
+    const prevStep = () => {
+        setError("");
+        setStep(step - 1);
+    };
+
+    // Handle final submit
     async function handleSubmit(e) {
         e.preventDefault();
+        setError("");
+
+        // Check all required fields
+        if (!form.name || !form.email || !form.phone || !form.role || !form.password || !form.confirmPassword) {
+            setError("Please fill in all fields before submitting.");
+            return;
+        }
+
+        // Check password match
         if (form.password !== form.confirmPassword) {
             setError("Passwords do not match!");
             return;
@@ -66,7 +99,7 @@ export default function Signup() {
                                 placeholder="Enter your full name"
                                 value={form.name}
                                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full dark:text-black px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                                 required
                             />
                         </div>
@@ -80,10 +113,16 @@ export default function Signup() {
                                 placeholder="Enter your email"
                                 value={form.email}
                                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full dark:text-black px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                                 required
                             />
                         </div>
+
+                        {error && (
+                            <p className="text-red-600 text-sm font-medium text-center">
+                                {error}
+                            </p>
+                        )}
 
                         <button
                             type="button"
@@ -107,7 +146,7 @@ export default function Signup() {
                                 placeholder="Enter your phone number"
                                 value={form.phone}
                                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full dark:text-black px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                                 required
                             />
                         </div>
@@ -119,7 +158,7 @@ export default function Signup() {
                             <select
                                 value={form.role}
                                 onChange={(e) => setForm({ ...form, role: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full dark:text-black px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                                 required
                             >
                                 <option value="">Select your role</option>
@@ -127,6 +166,12 @@ export default function Signup() {
                                 <option value="employee">Employee</option>
                             </select>
                         </div>
+
+                        {error && (
+                            <p className="text-red-600 text-sm font-medium text-center">
+                                {error}
+                            </p>
+                        )}
 
                         <div className="flex justify-between">
                             <button
@@ -160,7 +205,7 @@ export default function Signup() {
                                 placeholder="Create a strong password"
                                 value={form.password}
                                 onChange={(e) => setForm({ ...form, password: e.target.value })}
-                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full dark:text-black px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                                 required
                             />
                             <span
@@ -182,7 +227,7 @@ export default function Signup() {
                                 onChange={(e) =>
                                     setForm({ ...form, confirmPassword: e.target.value })
                                 }
-                                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                className="w-full dark:text-black px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                                 required
                             />
                         </div>

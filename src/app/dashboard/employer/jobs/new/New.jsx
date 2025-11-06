@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Autosuggest from "react-autosuggest";
 import { City } from "country-state-city";
@@ -38,7 +38,12 @@ export default function NewJobStepForm() {
     const [form, setForm] = useState({
         company_name: "",
         title: "",
-        location: "",
+        location_type: "",           // ✅ NEW: on-site, remote, hybrid
+        city: "",                     // ✅ NEW
+        area: "",                     // ✅ NEW
+        pincode: "",                  // ✅ NEW
+        street_address: "",           // ✅ NEW
+        location: "",                 // Keep for backward compatibility
         type: "Full-time",
         salary_min: "",
         salary_max: "",
@@ -49,7 +54,20 @@ export default function NewJobStepForm() {
         description: "",
         expires_at: "",
     });
-
+    useEffect(() => {
+        // Fetch employer info on component mount
+        async function fetchEmployerInfo() {
+            const res = await fetch("/api/employer/info");
+            const data = await res.json();
+            if (data.ok && data.employer.company_name) {
+                setForm(prev => ({
+                    ...prev,
+                    company_name: data.employer.company_name
+                }));
+            }
+        }
+        fetchEmployerInfo();
+    }, []);
     // Autosuggest themes
     const theme = {
         container: "relative",
@@ -143,7 +161,7 @@ export default function NewJobStepForm() {
 
                 <form onSubmit={onSubmit} className="space-y-5">
                     {/* Step 1: Company & Job Basics */}
-                    {step === 1 && (
+                    {/* {step === 1 && (
                         <div className="space-y-5 animate-fadeIn">
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1">
@@ -214,7 +232,191 @@ export default function NewJobStepForm() {
                                 </button>
                             </div>
                         </div>
+                    )} */}
+
+
+
+                    {/* Step 1: Company & Job Basics + Location */}
+                    {step === 1 && (
+                        <div className="space-y-5 animate-fadeIn">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                    Company Name *
+                                </label>
+                                <div className="relative">
+                                    <Building2 className="absolute left-3 top-3 text-indigo-500 w-5 h-5" />
+                                    <input
+                                        type="text"
+                                        placeholder="e.g. TekBooster Pvt. Ltd."
+                                        value={form.company_name}
+                                        onChange={(e) =>
+                                            setForm({ ...form, company_name: e.target.value })
+                                        }
+                                        className="w-full dark:text-black border border-gray-300 rounded-lg p-3 pl-10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="dark:text-black">
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                    Job Title *
+                                </label>
+                                <Autosuggest
+                                    suggestions={titleSuggestions}
+                                    onSuggestionsFetchRequested={onTitleFetch}
+                                    onSuggestionsClearRequested={onTitleClear}
+                                    getSuggestionValue={getTitleValue}
+                                    renderSuggestion={renderTitle}
+                                    inputProps={{
+                                        placeholder: "e.g. Software Engineer",
+                                        value: form.title,
+                                        onChange: (_, { newValue }) =>
+                                            setForm({ ...form, title: newValue }),
+                                    }}
+                                    theme={theme}
+
+                                />
+                            </div>
+
+                            {/* ✅ NEW: Location Type Selector */}
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                                    Job Location Type *
+                                </label>
+                                <select
+                                    value={form.location_type}
+                                    onChange={(e) => {
+                                        const newType = e.target.value;
+                                        setForm({
+                                            ...form,
+                                            location_type: newType,
+                                            // Clear location fields if Remote
+                                            ...(newType === 'remote' && {
+                                                city: '',
+                                                area: '',
+                                                pincode: '',
+                                                street_address: ''
+                                            })
+                                        });
+                                    }}
+                                    className="w-full dark:text-black border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    required
+                                >
+                                    <option value="">Select location type</option>
+                                    <option value="on-site">On-site</option>
+                                    <option value="remote">Remote</option>
+                                    <option value="hybrid">Hybrid</option>
+                                </select>
+                            </div>
+
+                            {/* ✅ Conditional Location Fields (Hidden for Remote) */}
+                            {form.location_type && form.location_type !== 'remote' && (
+                                <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                    <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                                        📍 Job Location Details
+                                    </h3>
+
+                                    {/* City */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                                            City *
+                                        </label>
+                                        <Autosuggest
+                                            suggestions={locationSuggestions}
+                                            onSuggestionsFetchRequested={onLocationFetch}
+                                            onSuggestionsClearRequested={onLocationClear}
+                                            getSuggestionValue={getLocationValue}
+                                            renderSuggestion={renderLocation}
+                                            inputProps={{
+                                                placeholder: "e.g. Bangalore",
+                                                value: form.city,
+                                                onChange: (_, { newValue }) =>
+                                                    setForm({ ...form, city: newValue }),
+                                            }}
+                                            theme={{
+                                                ...theme,
+                                                input: "w-full dark:text-black border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none text-sm",
+                                            }}
+                                        />
+                                    </div>
+
+                                    {/* Area */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                                            Area / Locality
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. Koramangala"
+                                            value={form.area}
+                                            onChange={(e) =>
+                                                setForm({ ...form, area: e.target.value })
+                                            }
+                                            className="w-full dark:text-black border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+                                        />
+                                    </div>
+
+                                    {/* Pincode */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                                            Pincode
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. 560034"
+                                            maxLength="6"
+                                            value={form.pincode}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, ''); // Only numbers
+                                                setForm({ ...form, pincode: value });
+                                            }}
+                                            className="w-full dark:text-black border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+                                        />
+                                    </div>
+
+                                    {/* Street Address */}
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                                            Street Address (Optional)
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g. 123, MG Road"
+                                            value={form.street_address}
+                                            onChange={(e) =>
+                                                setForm({ ...form, street_address: e.target.value })
+                                            }
+                                            className="w-full dark:text-black border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* ✅ Remote Location Message */}
+                            {form.location_type === 'remote' && (
+                                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                                    <p className="text-sm text-green-700 flex items-center gap-2">
+                                        <span className="text-lg">🌍</span>
+                                        This is a remote position - no physical location required
+                                    </p>
+                                </div>
+                            )}
+
+                            <div className="flex justify-between">
+                                <BackButton />
+                                <button
+                                    type="button"
+                                    onClick={next}
+                                    disabled={!form.location_type || (form.location_type !== 'remote' && !form.city)}
+                                    className="bg-indigo-600 text-white font-semibold px-6 py-3 rounded-lg shadow hover:bg-indigo-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    Continue <ArrowRight className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
                     )}
+
 
                     {/* Step 2: Job Type, Openings & Salary */}
                     {step === 2 && (
@@ -226,7 +428,7 @@ export default function NewJobStepForm() {
                                 <select
                                     value={form.type}
                                     onChange={(e) => setForm({ ...form, type: e.target.value })}
-                                    className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    className="w-full dark:text-black border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
                                 >
                                     <option>Full-time</option>
                                     <option>Part-time</option>
@@ -251,7 +453,7 @@ export default function NewJobStepForm() {
                                         onChange={(e) =>
                                             setForm({ ...form, openings: e.target.value })
                                         }
-                                        className="w-full border border-gray-300 rounded-lg p-3 pl-10 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                        className="w-full dark:text-black border border-gray-300 rounded-lg p-3 pl-10 focus:ring-2 focus:ring-indigo-500 outline-none"
                                     />
                                 </div>
                             </div>
@@ -264,7 +466,7 @@ export default function NewJobStepForm() {
                                     onChange={(e) =>
                                         setForm({ ...form, salary_min: e.target.value })
                                     }
-                                    className="w-1/2 border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    className="w-1/2 dark:text-black border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
                                 />
                                 <input
                                     type="number"
@@ -273,7 +475,7 @@ export default function NewJobStepForm() {
                                     onChange={(e) =>
                                         setForm({ ...form, salary_max: e.target.value })
                                     }
-                                    className="w-1/2 border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    className="w-1/2 dark:text-black border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
                                 />
                             </div>
 
@@ -305,7 +507,7 @@ export default function NewJobStepForm() {
                                 onChange={(e) =>
                                     setForm({ ...form, experience_required: e.target.value })
                                 }
-                                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full dark:text-black border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
                             />
                             <input
                                 placeholder="Education Level (e.g. Bachelor's Degree)"
@@ -313,13 +515,13 @@ export default function NewJobStepForm() {
                                 onChange={(e) =>
                                     setForm({ ...form, education_level: e.target.value })
                                 }
-                                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full dark:text-black border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
                             />
                             <input
                                 placeholder="Required Skills (comma separated)"
                                 value={form.skills}
                                 onChange={(e) => setForm({ ...form, skills: e.target.value })}
-                                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full dark:text-black border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
                             />
 
                             <div className="flex justify-between">
@@ -351,7 +553,7 @@ export default function NewJobStepForm() {
                                 theme="snow"
                                 value={form.description}
                                 onChange={(value) => setForm({ ...form, description: value })}
-                                className="bg-white rounded-lg"
+                                className="bg-white dark:text-black rounded-lg"
                                 placeholder="Write detailed responsibilities, qualifications, and benefits..."
                             />
 
@@ -386,7 +588,7 @@ export default function NewJobStepForm() {
                                 onChange={(e) =>
                                     setForm({ ...form, expires_at: e.target.value })
                                 }
-                                className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
+                                className="w-full dark:text-black border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none"
                             />
 
                             <div className="flex justify-between items-center">
@@ -406,9 +608,9 @@ export default function NewJobStepForm() {
                                     {loading ? "Publishing..." : "Publish Job"}{" "}
                                     <Check className="w-4 h-4" />
                                 </button>
-                                <div className="mt-2">
+                                {/* <div className="mt-2">
                                     <BackButton />
-                                </div>
+                                </div> */}
                             </div>
 
                             {msg && <p className="text-red-500 text-sm">{msg}</p>}

@@ -104,7 +104,6 @@
 //     }
 // }
 
-
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
@@ -145,7 +144,7 @@ export async function GET(req, context) {
     }
 }
 
-// PUT (update profile) - Updates both users table and employee/employer table
+// PUT (update profile) - Updates users, employee/employer, AND jobs table
 export async function PUT(req, context) {
     try {
         const { id } = await context.params;
@@ -218,6 +217,15 @@ export async function PUT(req, context) {
                     user_id
                 ]
             );
+
+            // ✅ 3️⃣ UPDATE JOBS TABLE - Sabhi jobs ki company_name update karo
+            await db.query(
+                `UPDATE jobs 
+                 SET company_name = ? 
+                 WHERE employer_id = ?`,
+                [company_name, user_id]
+            );
+
         } else {
             // Employee fields
             const {

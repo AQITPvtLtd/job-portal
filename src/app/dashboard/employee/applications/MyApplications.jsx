@@ -47,7 +47,7 @@ export default function ApplicationsPage() {
                     <button
                         key={status}
                         onClick={() => setTab(status)}
-                        className={`px-3 py-1 rounded-full ${tab === status ? "bg-indigo-600 text-white" : "bg-gray-200"
+                        className={`px-3 cursor-pointer dark:text-black py-1 rounded-full ${tab === status ? "bg-indigo-600 text-white" : "bg-gray-200"
                             } capitalize`}
                     >
                         {status === "all" ? "All" : status}
@@ -58,7 +58,7 @@ export default function ApplicationsPage() {
             {/* List */}
             <ul className="space-y-4">
                 {filtered.length === 0 ? (
-                    <p>No applications found.</p>
+                    <p className="dark:text-black">No applications found.</p>
                 ) : (
                     filtered.map((app) => (
                         <li
@@ -66,7 +66,7 @@ export default function ApplicationsPage() {
                             className="bg-white p-4 rounded-lg shadow flex justify-between items-start"
                         >
                             <div>
-                                <h2 className="text-lg font-semibold">{app.title}</h2>
+                                <h2 className="text-lg font-semibold dark:text-black">{app.title}</h2>
                                 <p className="text-sm text-gray-600">{app.location}</p>
                                 <p className={`text-sm font-medium ${statusColors[app.status]}`}>
                                     {app.status}

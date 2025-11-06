@@ -21,6 +21,15 @@ export default function Navbar() {
     const userRole = session?.user?.role;
     const userName = profileData.name;
 
+
+    const applicationRoute =
+        userRole === "employee"
+            ? "/dashboard/employee/applications"
+            : userRole === "employer"
+                ? "/dashboard/employer/jobs"
+                : "#";
+
+
     const profileRoute =
         userRole === "employee"
             ? "/dashboard/employee/edit-profile"
@@ -158,6 +167,14 @@ export default function Navbar() {
                                             >
                                                 <User size={18} className="text-gray-600" />
                                                 <span className="text-sm font-medium">Edit Profile</span>
+                                            </Link>
+                                            <Link
+                                                href={applicationRoute}
+                                                className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+                                                onClick={() => setDropdownOpen(false)}
+                                            >
+                                                <User size={18} className="text-gray-600" />
+                                                <span className="text-sm font-medium">My Applications</span>
                                             </Link>
                                             <button
                                                 onClick={() => {
