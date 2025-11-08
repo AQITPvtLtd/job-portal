@@ -27,6 +27,7 @@ const JOB_SUGGESTIONS = [
     "Product Manager",
     "Data Analyst",
     "Marketing Executive",
+    "Performance Marketing"
 ];
 
 export default function NewJobStepForm() {

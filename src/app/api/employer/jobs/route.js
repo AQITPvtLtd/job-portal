@@ -139,6 +139,11 @@ export async function GET(req) {
           title,
           company_name,
           location,
+          location_type,
+          city,
+          area,
+          pincode,
+          street_address,
           type,
           salary_min,
           salary_max,
@@ -176,7 +181,12 @@ export async function POST(req) {
         let {
             title,
             company_name,
-            location,
+            location, // Keep for backward compatibility
+            location_type, // ✅ NEW
+            city, // ✅ NEW
+            area, // ✅ NEW
+            pincode, // ✅ NEW
+            street_address, // ✅ NEW
             type,
             salary_min,
             salary_max,
@@ -189,11 +199,28 @@ export async function POST(req) {
         } = body;
 
         // Basic validation
-        if (!title || !location) {
+        if (!title || !location_type) {
             return NextResponse.json(
-                { ok: false, message: "Job title and location are required" },
+                { ok: false, message: "Job title and location type are required" },
                 { status: 400 }
             );
+        }
+
+        // ✅ Validate location fields for non-remote jobs
+        if (location_type !== 'remote' && !city) {
+            return NextResponse.json(
+                { ok: false, message: "City is required for on-site and hybrid jobs" },
+                { status: 400 }
+            );
+        }
+
+        // ✅ Build location string from new fields
+        if (location_type === 'remote') {
+            location = 'Remote';
+        } else {
+            // Combine city, area, pincode for location field
+            const locationParts = [city, area, pincode].filter(Boolean);
+            location = locationParts.join(', ') || city;
         }
 
         // ✅ Auto-fetch company_name from employers table if not provided
@@ -215,13 +242,18 @@ export async function POST(req) {
             }
         }
 
-        // Insert new job into database
+        // ✅ Insert new job into database with new location fields
         const [result] = await db.execute(
             `INSERT INTO jobs (
         employer_id,
         title,
         company_name,
         location,
+        location_type,
+        city,
+        area,
+        pincode,
+        street_address,
         type,
         salary_min,
         salary_max,
@@ -232,12 +264,17 @@ export async function POST(req) {
         expires_at,
         status,
         created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
             [
                 employerId,
                 title,
                 company_name,
-                location,
+                location, // Combined location string
+                location_type || null, // ✅ NEW
+                city || null, // ✅ NEW
+                area || null, // ✅ NEW
+                pincode || null, // ✅ NEW
+                street_address || null, // ✅ NEW
                 type || "full-time",
                 salary_min || null,
                 salary_max || null,
