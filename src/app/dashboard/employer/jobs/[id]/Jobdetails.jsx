@@ -88,11 +88,10 @@ export default function JobDetails() {
 
           <div className="text-right">
             <span
-              className={`px-4 py-1 text-sm font-semibold rounded-full ${
-                new Date(job.expires_at) > new Date()
-                  ? "bg-green-100 text-green-700"
-                  : "bg-gray-200 text-gray-600"
-              }`}
+              className={`px-4 py-1 text-sm font-semibold rounded-full ${new Date(job.expires_at) > new Date()
+                ? "bg-green-100 text-green-700"
+                : "bg-gray-200 text-gray-600"
+                }`}
             >
               {new Date(job.expires_at) > new Date() ? "Active" : "Expired"}
             </span>
@@ -126,11 +125,10 @@ export default function JobDetails() {
               <button
                 key={status}
                 onClick={() => setTab(status)}
-                className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${
-                  tab === status
-                    ? "bg-indigo-600 text-white shadow-sm"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                className={`px-3 py-1 rounded-full text-sm font-medium transition-all ${tab === status
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
               >
                 {status === "all"
                   ? "All"
@@ -161,15 +159,14 @@ export default function JobDetails() {
                   </div>
 
                   <span
-                    className={`px-3 py-1 text-xs font-medium rounded-full ${
-                      a.status === "reviewing"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : a.status === "interview"
+                    className={`px-3 py-1 text-xs font-medium rounded-full ${a.status === "reviewing"
+                      ? "bg-yellow-100 text-yellow-700"
+                      : a.status === "interview"
                         ? "bg-blue-100 text-blue-700"
                         : a.status === "rejected"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
+                          ? "bg-red-100 text-red-700"
+                          : "bg-gray-100 text-gray-600"
+                      }`}
                   >
                     {a.status || "Pending"}
                   </span>
@@ -199,7 +196,7 @@ export default function JobDetails() {
                   </button>
 
                   <Link
-                    href={`/dashboard/messages`}
+                    href={`/dashboard/messages?employeeId=${a.employee_id}`}
                     className="flex items-center gap-1 bg-indigo-600 text-white px-3 py-1 rounded-lg text-sm font-medium hover:bg-indigo-700"
                   >
                     <MessageSquare className="w-4 h-4" /> Message

@@ -10,54 +10,63 @@ export async function GET(req) {
 
         const employerId = token.sub;
 
-        // ✅ Total Jobs
+        // ✅ Total Jobs (all jobs by this employer)
         const [totalJobs] = await db.execute(
             "SELECT COUNT(*) as count FROM jobs WHERE employer_id = ?",
             [employerId]
         );
 
-        // ✅ Active Jobs
+        // ✅ Active Jobs (published + not expired)
         const [activeJobs] = await db.execute(
-            "SELECT COUNT(*) as count FROM jobs WHERE employer_id = ? AND status = 'published'",
+            `SELECT COUNT(*) as count 
+             FROM jobs 
+             WHERE employer_id = ? 
+             AND status = 'published'
+             AND (expires_at IS NULL OR expires_at >= CURDATE())`,
             [employerId]
         );
 
-        // ✅ Total Applicants
+        // ✅ Total Applicants (all time)
         const [totalApplicants] = await db.execute(
             `SELECT COUNT(*) as count 
-       FROM applications a
-       JOIN jobs j ON a.job_id = j.id
-       WHERE j.employer_id = ?`,
+             FROM applications a
+             JOIN jobs j ON a.job_id = j.id
+             WHERE j.employer_id = ?`,
             [employerId]
         );
 
-        // ✅ Applicants by Job
+        // ✅ Applicants by Job (only for ACTIVE jobs)
         const [applicantsByJob] = await db.execute(
             `SELECT j.title, COUNT(a.id) as count 
-       FROM jobs j 
-       LEFT JOIN applications a ON j.id = a.job_id 
-       WHERE j.employer_id = ? 
-       GROUP BY j.id`,
+             FROM jobs j 
+             LEFT JOIN applications a ON j.id = a.job_id 
+             WHERE j.employer_id = ? 
+             AND j.status = 'published'
+             AND (j.expires_at IS NULL OR j.expires_at >= CURDATE())
+             GROUP BY j.id, j.title
+             ORDER BY count DESC`,
             [employerId]
         );
 
-        // ✅ Job Type Distribution (Pie Chart)
+        // ✅ Job Type Distribution (only ACTIVE jobs)
         const [jobTypes] = await db.execute(
             `SELECT j.type, COUNT(*) as count 
-       FROM jobs j
-       WHERE j.employer_id = ?
-       GROUP BY j.type`,
+             FROM jobs j
+             WHERE j.employer_id = ?
+             AND j.status = 'published'
+             AND (j.expires_at IS NULL OR j.expires_at >= CURDATE())
+             GROUP BY j.type`,
             [employerId]
         );
 
-        // ✅ Applicants per Month (Line Chart)
+        // ✅ Applicants per Month (all time trend)
         const [applicantsPerMonth] = await db.execute(
             `SELECT DATE_FORMAT(a.created_at, '%Y-%m') as month, COUNT(*) as count
-       FROM applications a
-       JOIN jobs j ON a.job_id = j.id
-       WHERE j.employer_id = ?
-       GROUP BY month
-       ORDER BY month ASC`,
+             FROM applications a
+             JOIN jobs j ON a.job_id = j.id
+             WHERE j.employer_id = ?
+             GROUP BY month
+             ORDER BY month ASC`,
             [employerId]
         );
 

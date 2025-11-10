@@ -118,37 +118,97 @@
 // }
 
 
+// "use client";
+// import { useState } from "react";
+// import ConversationsList from "./ConversationsList";
+// import ChatWindow from "./ChatWindow";
+
+// export default function MessagesPage() {
+//     const [selectedUserId, setSelectedUserId] = useState(null);
+//     const [selectedUserInfo, setSelectedUserInfo] = useState(null);
+
+//     const handleSelectConversation = (userId, userInfo) => {
+//         setSelectedUserId(userId);
+//         setSelectedUserInfo(userInfo);
+//     };
+
+//     return (
+//         <div className="flex h-screen bg-white">
+//             {/* LEFT PANEL - Conversations List */}
+//             <div className={`${selectedUserId ? 'hidden md:flex' : 'flex'} w-full md:w-96 border-r border-gray-200 flex-col`}>
+//                 <ConversationsList
+//                     onSelectConversation={handleSelectConversation}
+//                     selectedUserId={selectedUserId}
+//                 />
+//             </div>
+
+//             {/* RIGHT PANEL - Chat Window */}
+//             <div className={`${selectedUserId ? 'flex' : 'hidden md:flex'} flex-1 flex-col`}>
+//                 {selectedUserId ? (
+//                     <ChatWindow
+//                         userId={selectedUserId}
+//                         userInfo={selectedUserInfo}
+//                         onBack={() => setSelectedUserId(null)}
+//                     />
+//                 ) : (
+//                     <div className="flex items-center justify-center h-full bg-gray-50">
+//                         <div className="text-center">
+//                             <div className="w-20 h-20 mx-auto mb-4 bg-gray-200 rounded-full flex items-center justify-center">
+//                                 <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+//                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+//                                 </svg>
+//                             </div>
+//                             <h3 className="text-lg font-semibold text-gray-900 mb-2">Select a conversation</h3>
+//                             <p className="text-gray-600 text-sm">Choose from your existing conversations to start messaging</p>
+//                         </div>
+//                     </div>
+//                 )}
+//             </div>
+//         </div>
+//     );
+// }
+
+
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import ConversationsList from "./ConversationsList";
 import ChatWindow from "./ChatWindow";
 
 export default function MessagesPage() {
-    const [selectedUserId, setSelectedUserId] = useState(null);
+    const searchParams = useSearchParams();
+    const employeeIdFromUrl = searchParams.get('employee_Id'); // ✅ Changed
+    const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
     const [selectedUserInfo, setSelectedUserInfo] = useState(null);
 
-    const handleSelectConversation = (userId, userInfo) => {
-        setSelectedUserId(userId);
+    // ✅ Auto-select employee if employeeId in URL
+    useEffect(() => {
+        if (employeeIdFromUrl) {
+            setSelectedEmployeeId(employeeIdFromUrl);
+            // Fetch employee info by employee_id
+        }
+    }, [employeeIdFromUrl]);
+
+    const handleSelectConversation = (employeeId, userInfo) => {
+        setSelectedEmployeeId(employeeId);
         setSelectedUserInfo(userInfo);
     };
 
     return (
         <div className="flex h-screen bg-white">
-            {/* LEFT PANEL - Conversations List */}
-            <div className={`${selectedUserId ? 'hidden md:flex' : 'flex'} w-full md:w-96 border-r border-gray-200 flex-col`}>
+            <div className={`${selectedEmployeeId ? 'hidden md:flex' : 'flex'} w-full md:w-96 border-r border-gray-200 flex-col`}>
                 <ConversationsList
                     onSelectConversation={handleSelectConversation}
-                    selectedUserId={selectedUserId}
+                    selectedEmployeeId={selectedEmployeeId}
                 />
             </div>
 
-            {/* RIGHT PANEL - Chat Window */}
-            <div className={`${selectedUserId ? 'flex' : 'hidden md:flex'} flex-1 flex-col`}>
-                {selectedUserId ? (
+            <div className={`${selectedEmployeeId ? 'flex' : 'hidden md:flex'} flex-1 flex-col`}>
+                {selectedEmployeeId ? (
                     <ChatWindow
-                        userId={selectedUserId}
+                        employeeId={selectedEmployeeId}
                         userInfo={selectedUserInfo}
-                        onBack={() => setSelectedUserId(null)}
+                        onBack={() => setSelectedEmployeeId(null)}
                     />
                 ) : (
                     <div className="flex items-center justify-center h-full bg-gray-50">

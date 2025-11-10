@@ -102,19 +102,7 @@ export default function JobsList() {
 
                                 {/* Actions */}
                                 <div className="flex justify-between items-center mt-5">
-                                    <Link
-                                        href={`/dashboard/employer/jobs/${job.id}`}
-                                        className="text-indigo-600 font-medium hover:underline"
-                                    >
-                                        View Applicants
-                                    </Link>
-
-                                    {/* <Link
-                                        href={`/dashboard/employer/jobs/edit/${job.id}`}
-                                        className="flex items-center gap-1 text-gray-500 hover:text-indigo-600 transition"
-                                    >
-                                        <Pencil className="w-4 h-4" /> Edit
-                                    </Link> */}
+                                    <Link href={`/dashboard/employer/jobs/${job.job_id}`} className="text-indigo-600 font-medium hover:underline">View Applicants</Link>
                                 </div>
                             </div>
                         ))}

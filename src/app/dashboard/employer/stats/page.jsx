@@ -4,7 +4,7 @@ import Stats from './Stats'
 const page = () => {
   return (
     <div>
-        <Stats />
+      <Stats />
     </div>
   )
 }
