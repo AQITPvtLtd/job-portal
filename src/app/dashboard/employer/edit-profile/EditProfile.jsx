@@ -248,7 +248,7 @@ export default function EmployerEditProfile() {
                         <img
                             src={profile.logo || "/default-company-logo.png"}
                             alt="Company Logo"
-                            className="w-24 h-24 rounded-lg object-cover border-4 border-blue-500"
+                            className="w-24 dark:text-black h-24 rounded-lg object-cover border-4 border-blue-500"
                         />
                         <div className="flex-1">
                             <label className="block text-sm font-medium text-gray-700 mb-2">

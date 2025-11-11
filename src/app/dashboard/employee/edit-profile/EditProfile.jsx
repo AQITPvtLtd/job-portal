@@ -277,7 +277,7 @@ export default function EditProfile() {
                         <img
                             src={profile.profile_image || "/default-avatar.png"}
                             alt="Profile"
-                            className="w-24 h-24 rounded-full object-cover border-4 border-blue-500"
+                            className="w-24 text-black h-24 rounded-full object-cover border-4 border-blue-500"
                         />
                         <div className="flex-1">
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -288,7 +288,7 @@ export default function EditProfile() {
                                 type="file"
                                 accept="image/jpeg,image/jpg,image/png,image/webp"
                                 onChange={handleImageChange}
-                                className="w-full border border-gray-300 rounded p-2 text-sm"
+                                className="w-full text-black border border-gray-300 rounded p-2 text-sm"
                             />
                             {imageError && (
                                 <p className="text-red-600 text-xs mt-1">⚠️ {imageError}</p>
@@ -314,7 +314,7 @@ export default function EditProfile() {
                                 placeholder="Enter your full name"
                                 value={profile.full_name}
                                 onChange={(e) => setProfile({ ...profile, full_name: e.target.value })}
-                                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full text-black border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 required
                             />
                         </div>
@@ -329,7 +329,7 @@ export default function EditProfile() {
                                 placeholder="your.email@example.com"
                                 value={profile.email}
                                 onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full text-black border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 required
                             />
                         </div>
@@ -344,7 +344,7 @@ export default function EditProfile() {
                                 placeholder="+1 (555) 123-4567"
                                 value={profile.phone}
                                 onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full text-black border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                         </div>
 
@@ -358,7 +358,7 @@ export default function EditProfile() {
                                 placeholder="City, State, Country"
                                 value={profile.location}
                                 onChange={(e) => setProfile({ ...profile, location: e.target.value })}
-                                className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full text-black border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             />
                         </div>
                     </div>
@@ -375,7 +375,7 @@ export default function EditProfile() {
                         placeholder="Tell us about yourself, your career goals, and what makes you unique..."
                         value={profile.bio}
                         onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                        className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full text-black border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         rows="4"
                     />
                 </div>
@@ -391,7 +391,7 @@ export default function EditProfile() {
                         type="file"
                         accept=".pdf,.doc,.docx"
                         onChange={(e) => setResumeFile(e.target.files[0])}
-                        className="w-full border border-gray-300 rounded p-2 text-sm mb-2"
+                        className="w-full text-black border border-gray-300 rounded p-2 text-sm mb-2"
                     />
                     {profile.resume_url && (
                         <p className="text-sm text-gray-600">
@@ -414,7 +414,7 @@ export default function EditProfile() {
                         placeholder="Describe your work experience, job titles, companies, and key achievements..."
                         value={profile.experience}
                         onChange={(e) => setProfile({ ...profile, experience: e.target.value })}
-                        className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full text-black border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         rows="5"
                     />
                 </div>
@@ -430,13 +430,13 @@ export default function EditProfile() {
                         placeholder="List your key skills (e.g., JavaScript, React, Project Management, Communication)..."
                         value={profile.skills}
                         onChange={(e) => setProfile({ ...profile, skills: e.target.value })}
-                        className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full text-black border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         rows="4"
                     />
                 </div>
 
                 {/* Education */}
-                <div className="bg-gray-50 p-6 rounded-lg">
+                <div className="bg-gray-50 p-6 rounded-lg overflow-x-hidden">
                     <h3 className="text-lg font-semibold mb-4 text-gray-700">Education</h3>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                         <GraduationCap className="inline w-4 h-4 mr-2" />
@@ -446,7 +446,7 @@ export default function EditProfile() {
                         placeholder="List your degrees, certifications, schools, and graduation dates..."
                         value={profile.education}
                         onChange={(e) => setProfile({ ...profile, education: e.target.value })}
-                        className="w-full border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full text-black border border-gray-300 p-3 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         rows="4"
                     />
                 </div>

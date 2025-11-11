@@ -68,7 +68,6 @@
 //     }
 // }
 
-
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import bcrypt from "bcrypt";
@@ -122,16 +121,19 @@ export async function POST(req) {
         // 6️⃣ Create a related record depending on role
         if (role === "employee") {
             // ✅ Generate UUID for employee_id
-            const employeeId = uuidv4();
+            const employeeId = uuidv4().replace(/-/g, ''); // Remove dashes for clean UUID
 
             await db.query(
                 "INSERT INTO employees (user_id, employee_id) VALUES (?, ?)",
                 [userId, employeeId]
             );
         } else if (role === "employer") {
+            // ✅ Generate UUID for employer_id
+            const employerId = uuidv4().replace(/-/g, ''); // Remove dashes for clean UUID
+
             await db.query(
-                "INSERT INTO employers (user_id) VALUES (?)",
-                [userId]
+                "INSERT INTO employers (user_id, employer_id) VALUES (?, ?)",
+                [userId, employerId]
             );
         }
 

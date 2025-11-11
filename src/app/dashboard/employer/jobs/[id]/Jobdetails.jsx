@@ -194,9 +194,16 @@ export default function JobDetails() {
                   >
                     <XCircle className="w-4 h-4" /> Reject
                   </button>
+                  {/* 
+                  <Link
+                    href={`/dashboard/messages/${a.employee_id}`}
+                    className="flex items-center gap-1 bg-indigo-600 text-white px-3 py-1 rounded-lg text-sm font-medium hover:bg-indigo-700"
+                  >
+                    <MessageSquare className="w-4 h-4" /> Message
+                  </Link> */}
 
                   <Link
-                    href={`/dashboard/messages?employeeId=${a.employee_id}`}
+                    href={`/dashboard/messages/${a.employee_id}`}
                     className="flex items-center gap-1 bg-indigo-600 text-white px-3 py-1 rounded-lg text-sm font-medium hover:bg-indigo-700"
                   >
                     <MessageSquare className="w-4 h-4" /> Message
