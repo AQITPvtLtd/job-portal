@@ -1,42 +1,10 @@
-// import { db } from "@/lib/db";
-// import { getToken } from "next-auth/jwt";
-
-// export async function GET(req, context) {
-//     try {
-//         const params = await context.params;
-//         const otherId = params.otherId;
-
-//         const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-//         if (!token) {
-//             return Response.json({ ok: false, message: "Unauthorized" }, { status: 401 });
-//         }
-
-//         const me = token.sub || token.id;
-
-//         const [rows] = await db.execute(
-//             `SELECT id, sender_id, receiver_id, job_id, content, file_url, file_name, file_type, file_size, is_read, created_at
-//      FROM messages
-//      WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
-//      ORDER BY created_at ASC`,
-//             [me, otherId, otherId, me]
-//         );
-
-//         return Response.json({ ok: true, messages: rows });
-//     } catch (err) {
-//         console.error("Fetch conversation error:", err);
-//         return Response.json({ ok: false, message: "Server error" }, { status: 500 });
-//     }
-// }
-
-
-
 import { db } from "@/lib/db";
 import { getToken } from "next-auth/jwt";
 
 export async function GET(req, context) {
     try {
         const params = await context.params;
-        const uniqueId = params.otherId; // employee_id or employer_id (UUID)
+        const uniqueId = params.otherId;
 
         const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
         if (!token) {
@@ -45,8 +13,7 @@ export async function GET(req, context) {
 
         const myUserId = token.sub || token.id;
 
-        // Step 1: Find the other user's user_id from uniqueId
-        // First check if it's an employee_id
+        // Find other user's user_id from uniqueId
         let [employeeRows] = await db.execute(
             `SELECT user_id FROM employees WHERE employee_id = ?`,
             [uniqueId]
@@ -59,7 +26,6 @@ export async function GET(req, context) {
             otherUserId = employeeRows[0].user_id;
             otherUserRole = 'employee';
         } else {
-            // Check if it's an employer_id
             let [employerRows] = await db.execute(
                 `SELECT user_id FROM employers WHERE employer_id = ?`,
                 [uniqueId]
@@ -75,7 +41,7 @@ export async function GET(req, context) {
             return Response.json({ ok: false, message: "User not found" }, { status: 404 });
         }
 
-        // Step 2: Get user info
+        // Get user info
         const [userRows] = await db.execute(
             `SELECT id, name, email, role FROM users WHERE id = ?`,
             [otherUserId]
@@ -83,16 +49,53 @@ export async function GET(req, context) {
 
         const userInfo = userRows[0] || null;
 
-        // Step 3: Fetch messages between me and other user
+        // Get job info (latest job_id from messages)
+        const [jobInfoRes] = await db.execute(
+            `SELECT job_id FROM messages 
+             WHERE ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?))
+             AND job_id IS NOT NULL
+             ORDER BY created_at DESC
+             LIMIT 1`,
+            [myUserId, otherUserId, otherUserId, myUserId]
+        );
+
+        let jobTitle = null;
+        let companyName = null;
+
+        if (jobInfoRes[0]?.job_id) {
+            const [jobRes] = await db.execute(
+                `SELECT j.title, e.company_name 
+                 FROM jobs j
+                 LEFT JOIN employers e ON j.employer_id = e.id
+                 WHERE j.id = ?`,
+                [jobInfoRes[0].job_id]
+            );
+
+            if (jobRes[0]) {
+                jobTitle = jobRes[0].title;
+                companyName = jobRes[0].company_name;
+            }
+        }
+
+        // Fetch messages (exclude archived and spam from chat view)
         const [messages] = await db.execute(
             `SELECT id, sender_id, receiver_id, job_id, content, file_url, file_name, file_type, file_size, is_read, created_at
              FROM messages
-             WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
+             WHERE ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?))
+             AND is_archived = 0 AND is_spam = 0
              ORDER BY created_at ASC`,
             [myUserId, otherUserId, otherUserId, myUserId]
         );
 
-        return Response.json({ ok: true, messages, userInfo });
+        return Response.json({
+            ok: true,
+            messages,
+            userInfo: {
+                ...userInfo,
+                job_title: jobTitle,
+                company_name: companyName
+            }
+        });
     } catch (err) {
         console.error("Fetch conversation error:", err);
         return Response.json({ ok: false, message: "Server error" }, { status: 500 });

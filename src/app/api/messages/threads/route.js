@@ -1,65 +1,3 @@
-// import { db } from "@/lib/db";
-// import { getToken } from "next-auth/jwt";
-
-// export async function GET(req) {
-//     try {
-//         const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-//         if (!token) return Response.json({ ok: false }, { status: 401 });
-//         const me = token.sub || token.id;
-
-//         // 1) distinct counterpart ids
-//         const [pairs] = await db.execute(
-//             `SELECT DISTINCT IF(sender_id = ?, receiver_id, sender_id) AS counterpart_id
-//        FROM messages
-//        WHERE sender_id = ? OR receiver_id = ?`,
-//             [me, me, me]
-//         );
-
-//         const threads = await Promise.all(pairs.map(async (p) => {
-//             const other = p.counterpart_id;
-//             // last message
-//             const [lastRes] = await db.execute(
-//                 `SELECT content, sender_id, receiver_id, created_at
-//          FROM messages
-//          WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
-//          ORDER BY created_at DESC
-//          LIMIT 1`, [me, other, other, me]
-//             );
-//             const last = lastRes[0] || null;
-
-//             // unread count from that other to me
-//             const [unreadRes] = await db.execute(
-//                 `SELECT COUNT(*) as count FROM messages WHERE sender_id = ? AND receiver_id = ? AND is_read = 0`,
-//                 [other, me]
-//             );
-
-//             // counterpart name (from users table)
-//             const [userRes] = await db.execute(`SELECT id, name, email FROM users WHERE id = ? LIMIT 1`, [other]);
-
-//             return {
-//                 counterpart_id: other,
-//                 name: userRes[0]?.name ?? userRes[0]?.email ?? `User ${other}`,
-//                 last_message: last ? last.content : null,
-//                 last_at: last ? last.created_at : null,
-//                 unread: unreadRes[0]?.count ?? 0
-//             };
-//         }));
-
-//         // sort by last_at desc
-//         threads.sort((a, b) => {
-//             if (!a.last_at) return 1;
-//             if (!b.last_at) return -1;
-//             return new Date(b.last_at) - new Date(a.last_at);
-//         });
-
-//         return Response.json({ ok: true, threads });
-//     } catch (err) {
-//         console.error("Threads error:", err);
-//         return Response.json({ ok: false, message: "Server error" }, { status: 500 });
-//     }
-// }
-
-
 import { db } from "@/lib/db";
 import { getToken } from "next-auth/jwt";
 
@@ -70,35 +8,55 @@ export async function GET(req) {
 
         const me = token.sub || token.id;
 
-        // Step 1: Get distinct counterpart user ids
+        // Get filter from query params (inbox, archived, spam)
+        const { searchParams } = new URL(req.url);
+        const filter = searchParams.get('filter') || 'inbox';
+
+        // Build filter condition WITHOUT alias
+        let filterCondition = '';
+        if (filter === 'archived') {
+            filterCondition = 'AND is_archived = 1';
+        } else if (filter === 'spam') {
+            filterCondition = 'AND is_spam = 1';
+        } else {
+            // inbox - not archived and not spam
+            filterCondition = 'AND is_archived = 0 AND is_spam = 0';
+        }
+
+        // Get distinct counterpart user ids with filter (NO ALIAS)
         const [pairs] = await db.execute(
             `SELECT DISTINCT IF(sender_id = ?, receiver_id, sender_id) AS counterpart_id
              FROM messages
-             WHERE sender_id = ? OR receiver_id = ?`,
+             WHERE (sender_id = ? OR receiver_id = ?) ${filterCondition}`,
             [me, me, me]
         );
 
-        // Step 2: Build threads with unique_id (employee_id or employer_id)
+        // Build threads with unique_id and job info
         const threads = await Promise.all(pairs.map(async (p) => {
             const otherId = p.counterpart_id;
 
-            // Get last message
+            // Get last message with filter (NO ALIAS)
             const [lastRes] = await db.execute(
-                `SELECT content, sender_id, receiver_id, created_at
+                `SELECT content, sender_id, receiver_id, created_at, job_id
                  FROM messages
-                 WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
+                 WHERE ((sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?))
+                 ${filterCondition}
                  ORDER BY created_at DESC
                  LIMIT 1`,
                 [me, otherId, otherId, me]
             );
             const last = lastRes[0] || null;
 
-            // Unread count
-            const [unreadRes] = await db.execute(
-                `SELECT COUNT(*) as count FROM messages 
-                 WHERE sender_id = ? AND receiver_id = ? AND is_read = 0`,
-                [otherId, me]
-            );
+            // Unread count (only for inbox)
+            let unreadCount = 0;
+            if (filter === 'inbox') {
+                const [unreadRes] = await db.execute(
+                    `SELECT COUNT(*) as count FROM messages 
+                     WHERE sender_id = ? AND receiver_id = ? AND is_read = 0 AND is_archived = 0 AND is_spam = 0`,
+                    [otherId, me]
+                );
+                unreadCount = unreadRes[0]?.count ?? 0;
+            }
 
             // Get user info
             const [userRes] = await db.execute(
@@ -126,16 +84,39 @@ export async function GET(req) {
                 uniqueId = empRows[0]?.employer_id || null;
             }
 
-            if (!uniqueId) return null; // Skip if no unique_id found
+            if (!uniqueId) return null;
+
+            // Get job info if job_id exists
+            let jobTitle = null;
+            let companyName = null;
+
+            if (last?.job_id) {
+                const [jobRes] = await db.execute(
+                    `SELECT j.title, e.company_name 
+                     FROM jobs j
+                     LEFT JOIN employers e ON j.employer_id = e.id
+                     WHERE j.id = ?`,
+                    [last.job_id]
+                );
+
+                if (jobRes[0]) {
+                    jobTitle = jobRes[0].title;
+                    companyName = jobRes[0].company_name;
+                }
+            }
 
             return {
                 unique_id: uniqueId,
                 counterpart_id: otherId,
                 name: user.name ?? user.email ?? `User ${otherId}`,
                 role: user.role,
+                job_title: jobTitle,
+                company_name: companyName,
                 last_message: last ? last.content : null,
                 last_at: last ? last.created_at : null,
-                unread: unreadRes[0]?.count ?? 0
+                unread: unreadCount,
+                is_archived: filter === 'archived',
+                is_spam: filter === 'spam'
             };
         }));
 
