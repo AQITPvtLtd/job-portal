@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { ArrowLeft, Send, MoreVertical, Paperclip, X, File, Download, Smile, Archive, AlertOctagon, LogOut } from "lucide-react";
+import { ArrowLeft, Send, MoreVertical, Paperclip, X, File, Download, Smile, Archive, AlertOctagon, LogOut, Inbox } from "lucide-react";
 import EmojiPicker from "./EmojiPicker";
 
 export default function ChatWindow({ uniqueId, onBack, onArchive }) {
@@ -18,6 +18,7 @@ export default function ChatWindow({ uniqueId, onBack, onArchive }) {
     const [filePreview, setFilePreview] = useState(null);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const [showOptionsMenu, setShowOptionsMenu] = useState(false);
+    const [conversationStatus, setConversationStatus] = useState({ is_archived: false, is_spam: false });
     const listRef = useRef(null);
     const fileInputRef = useRef(null);
     const prevMessagesLengthRef = useRef(0);
@@ -32,7 +33,6 @@ export default function ChatWindow({ uniqueId, onBack, onArchive }) {
         return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
     };
 
-    // Close options menu on outside click
     useEffect(() => {
         function handleClickOutside(event) {
             if (optionsMenuRef.current && !optionsMenuRef.current.contains(event.target)) {
@@ -43,7 +43,6 @@ export default function ChatWindow({ uniqueId, onBack, onArchive }) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // Detect user manual scrolling
     useEffect(() => {
         const container = listRef.current;
         if (!container) return;
@@ -92,6 +91,16 @@ export default function ChatWindow({ uniqueId, onBack, onArchive }) {
                 if (d.ok && isMounted) {
                     setMessages(d.messages || []);
                     setUserInfo(d.userInfo || null);
+
+                    // Check conversation status from first message
+                    if (d.messages && d.messages.length > 0) {
+                        const firstMsg = d.messages[0];
+                        setConversationStatus({
+                            is_archived: firstMsg.is_archived || false,
+                            is_spam: firstMsg.is_spam || false
+                        });
+                    }
+
                     setLoading(false);
                 }
             } catch (error) {
@@ -192,6 +201,41 @@ export default function ChatWindow({ uniqueId, onBack, onArchive }) {
         setText(prev => prev + emoji);
     };
 
+    // const handleAction = async (action) => {
+    //     try {
+    //         const res = await fetch('/api/messages/actions', {
+    //             method: 'POST',
+    //             headers: { 'Content-Type': 'application/json' },
+    //             body: JSON.stringify({ uniqueId, action })
+    //         });
+
+    //         const data = await res.json();
+    //         if (data.ok) {
+    //             setShowOptionsMenu(false);
+
+    //             // Show success message
+    //             const actionMessages = {
+    //                 'archive': 'Conversation archived',
+    //                 'spam': 'Marked as spam',
+    //                 'inbox': 'Moved to inbox'
+    //             };
+
+    //             alert(actionMessages[action] || 'Action completed');
+
+    //             // Go back to list
+    //             onBack();
+
+    //             // Refresh list
+    //             if (onArchive) onArchive();
+    //         } else {
+    //             alert(data.message || 'Action failed');
+    //         }
+    //     } catch (error) {
+    //         console.error('Action error:', error);
+    //         alert('Failed to perform action');
+    //     }
+    // };
+
     const handleAction = async (action) => {
         try {
             const res = await fetch('/api/messages/actions', {
@@ -202,10 +246,34 @@ export default function ChatWindow({ uniqueId, onBack, onArchive }) {
 
             const data = await res.json();
             if (data.ok) {
-                alert(data.message);
                 setShowOptionsMenu(false);
-                onBack(); // Go back to list
-                if (onArchive) onArchive(); // Refresh list
+
+                // Update local conversation status
+                if (action === 'archive') {
+                    setConversationStatus({ is_archived: true, is_spam: false });
+                } else if (action === 'spam') {
+                    setConversationStatus({ is_archived: false, is_spam: true });
+                } else if (action === 'inbox') {
+                    setConversationStatus({ is_archived: false, is_spam: false });
+                }
+
+                // Show success toast (better than alert)
+                const actionMessages = {
+                    'archive': 'Conversation archived successfully',
+                    'spam': 'Marked as spam successfully',
+                    'inbox': 'Moved to inbox successfully'
+                };
+
+                // Optional: Add toast notification instead of alert
+                alert(actionMessages[action] || 'Action completed');
+
+                // IMPORTANT: Call parent refresh and go back
+                if (onArchive) onArchive();
+
+                // Small delay to ensure state updates
+                setTimeout(() => {
+                    onBack();
+                }, 300);
             } else {
                 alert(data.message || 'Action failed');
             }
@@ -316,7 +384,6 @@ export default function ChatWindow({ uniqueId, onBack, onArchive }) {
                             <h2 className="font-bold text-gray-900 text-lg">
                                 {userInfo?.name || "User"}
                             </h2>
-                            {/* Job Title & Company */}
                             {userInfo?.job_title && (
                                 <p className="text-sm text-blue-600 font-semibold">
                                     {userInfo.job_title}
@@ -340,22 +407,45 @@ export default function ChatWindow({ uniqueId, onBack, onArchive }) {
                         </button>
 
                         {showOptionsMenu && (
-                            <div className="relative top-full right-0 mt-2 w-48 bg-white border-2 border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden animate-slide-down">
-                                <button
-                                    onClick={() => handleAction('archive')}
-                                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 transition-all text-left"
-                                >
-                                    <Archive size={18} className="text-gray-600" />
-                                    <span className="text-sm font-medium text-gray-700">Archive</span>
-                                </button>
-                                <button
-                                    onClick={() => handleAction('spam')}
-                                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 transition-all text-left"
-                                >
-                                    <AlertOctagon size={18} className="text-red-600" />
-                                    <span className="text-sm font-medium text-red-700">Report Spam</span>
-                                </button>
+                            <div className="relative top-full right-0 mt-2 w-56 bg-white border-2 border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden animate-slide-down">
+                                {/* Move to Inbox - Show only if archived or spam */}
+                                {(conversationStatus.is_archived || conversationStatus.is_spam) && (
+                                    <>
+                                        <button
+                                            onClick={() => handleAction('inbox')}
+                                            className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all text-left"
+                                        >
+                                            <Inbox size={18} className="text-blue-600" />
+                                            <span className="text-sm font-medium text-blue-700">Move to Inbox</span>
+                                        </button>
+                                        <div className="border-t border-gray-200"></div>
+                                    </>
+                                )}
+
+                                {/* Archive - Show only if NOT archived */}
+                                {!conversationStatus.is_archived && (
+                                    <button
+                                        onClick={() => handleAction('archive')}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 transition-all text-left"
+                                    >
+                                        <Archive size={18} className="text-gray-600" />
+                                        <span className="text-sm font-medium text-gray-700">Archive</span>
+                                    </button>
+                                )}
+
+                                {/* Spam - Show only if NOT spam */}
+                                {!conversationStatus.is_spam && (
+                                    <button
+                                        onClick={() => handleAction('spam')}
+                                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 transition-all text-left"
+                                    >
+                                        <AlertOctagon size={18} className="text-red-600" />
+                                        <span className="text-sm font-medium text-red-700">Report Spam</span>
+                                    </button>
+                                )}
+
                                 <div className="border-t border-gray-200"></div>
+
                                 <button
                                     onClick={onBack}
                                     className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all text-left"
@@ -421,8 +511,8 @@ export default function ChatWindow({ uniqueId, onBack, onArchive }) {
                                         <div className={`flex ${isMine ? "justify-end" : "justify-start"} px-2`}>
                                             <div className="max-w-[75%] md:max-w-[60%] group">
                                                 <div className={`p-4 rounded-3xl shadow-lg backdrop-blur-sm transition-all duration-300 transform hover:scale-[1.02] ${isMine
-                                                        ? "bg-gradient-to-br from-blue-600 via-blue-500 to-purple-600 text-white rounded-br-md shadow-blue-500/30"
-                                                        : "bg-white/90 text-gray-900 border-2 border-gray-100 rounded-bl-md shadow-gray-300/50"
+                                                    ? "bg-gradient-to-br from-blue-600 via-blue-500 to-purple-600 text-white rounded-br-md shadow-blue-500/30"
+                                                    : "bg-white/90 text-gray-900 border-2 border-gray-100 rounded-bl-md shadow-gray-300/50"
                                                     }`}>
                                                     {m.file_url && (
                                                         <div className="mb-3">
@@ -453,8 +543,8 @@ export default function ChatWindow({ uniqueId, onBack, onArchive }) {
                                                                 <button
                                                                     onClick={() => downloadFile(m.file_url, m.file_name)}
                                                                     className={`w-full flex items-center gap-3 p-4 rounded-2xl border-2 border-dashed ${isMine
-                                                                            ? 'bg-blue-700/30 border-blue-300 hover:bg-blue-700/50'
-                                                                            : 'bg-gray-50 border-gray-300 hover:bg-gray-100'
+                                                                        ? 'bg-blue-700/30 border-blue-300 hover:bg-blue-700/50'
+                                                                        : 'bg-gray-50 border-gray-300 hover:bg-gray-100'
                                                                         } cursor-pointer group/file`}
                                                                 >
                                                                     <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${isMine ? 'bg-blue-700' : 'bg-gray-200'
@@ -496,8 +586,8 @@ export default function ChatWindow({ uniqueId, onBack, onArchive }) {
                                                         <>
                                                             <span className="opacity-0 group-hover:opacity-100">•</span>
                                                             <span className={`px-2 py-0.5 rounded-full ${m.is_read
-                                                                    ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white"
-                                                                    : "bg-gray-200 text-gray-600"
+                                                                ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white"
+                                                                : "bg-gray-200 text-gray-600"
                                                                 }`}>
                                                                 {m.is_read ? "✓✓" : "✓"}
                                                             </span>
