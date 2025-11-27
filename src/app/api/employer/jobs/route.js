@@ -179,6 +179,7 @@ import { NextResponse } from "next/server";
 import { v4 as uuidv4 } from 'uuid'; // ✅ Import UUID
 
 // 🟢 Fetch all jobs for the logged-in employer
+// 🟢 Fetch all jobs for the logged-in employer
 export async function GET(req) {
     try {
         const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
@@ -190,29 +191,32 @@ export async function GET(req) {
 
         const [rows] = await db.execute(
             `SELECT 
-          id,
-          job_id,
-          title,
-          company_name,
-          location,
-          location_type,
-          city,
-          area,
-          pincode,
-          street_address,
-          type,
-          salary_min,
-          salary_max,
-          experience_required,
-          education_level,
-          skills,
-          description,
-          expires_at,
-          status,
-          created_at
+          jobs.id,
+          jobs.job_id,
+          jobs.title,
+          jobs.company_name,
+          jobs.location,
+          jobs.location_type,
+          jobs.city,
+          jobs.area,
+          jobs.pincode,
+          jobs.street_address,
+          jobs.type,
+          jobs.salary_min,
+          jobs.salary_max,
+          jobs.experience_required,
+          jobs.education_level,
+          jobs.skills,
+          jobs.description,
+          jobs.expires_at,
+          jobs.status,
+          jobs.created_at,
+          COUNT(applications.id) as applicants_count
         FROM jobs 
-        WHERE employer_id = ?
-        ORDER BY created_at DESC`,
+        LEFT JOIN applications ON jobs.job_id = applications.job_id
+        WHERE jobs.employer_id = ?
+        GROUP BY jobs.id
+        ORDER BY jobs.created_at DESC`,
             [employerId]
         );
 

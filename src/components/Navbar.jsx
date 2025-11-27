@@ -98,7 +98,7 @@ export default function Navbar() {
     return (
         <nav className="bg-black text-white shadow-lg sticky top-0 z-50 border-b border-gray-800">
             <div className="px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between items-center h-16">
+                <div className="flex justify-between items-center h-28">
                     {/* Logo */}
                     <Link
                         href="/"
@@ -110,7 +110,7 @@ export default function Navbar() {
                             width={140}
                             height={40}
                             priority
-                            className="h-10 w-auto"
+                            className="h-20 w-auto"
                         />
                     </Link>
 

@@ -80,14 +80,14 @@ export default function JobsList() {
 
                                 {/* Job Info */}
                                 <div className="flex items-center justify-between text-sm text-gray-600 mt-4 border-t pt-3">
-                                    <div className="flex items-center gap-2">
+                                    {/* <div className="flex items-center gap-2">
                                         <Users className="w-4 h-4 text-indigo-500" />
                                         <span>{job.applicants_count || 0} applicants</span>
-                                    </div>
-                                    {/* <div className="flex items-center gap-2">
-                                        <Eye className="w-4 h-4 text-gray-400" />
-                                        <span>{job.views || 0} views</span>
                                     </div> */}
+                                    <div className="flex items-center gap-2">
+                                       <Link href={`/dashboard/employer/jobs/${job.job_id}`} className="text-indigo-600 font-medium hover:underline">View Applicants</Link>
+                                    </div>
+
                                     <div className="flex items-center gap-2">
                                         <CalendarDays className="w-4 h-4 text-gray-400" />
                                         <span>
@@ -98,12 +98,14 @@ export default function JobsList() {
                                             })}
                                         </span>
                                     </div>
+
+                                    {/* Actions */}
+                                    {/* <div className="flex justify-between items-center mt-5">
+                                        <Link href={`/dashboard/employer/jobs/${job.job_id}`} className="text-indigo-600 font-medium hover:underline">View Applicants</Link>
+                                    </div> */}
                                 </div>
 
-                                {/* Actions */}
-                                <div className="flex justify-between items-center mt-5">
-                                    <Link href={`/dashboard/employer/jobs/${job.job_id}`} className="text-indigo-600 font-medium hover:underline">View Applicants</Link>
-                                </div>
+
                             </div>
                         ))}
                     </div>

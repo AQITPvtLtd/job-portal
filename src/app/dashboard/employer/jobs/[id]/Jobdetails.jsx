@@ -210,9 +210,9 @@ export default function JobDetails() {
                   </Link>
 
                   {/* Resume Download */}
-                  {a.resume_url && (
+                  {a.resume && (
                     <a
-                      href={a.resume_url}
+                      href={a.resume}
                       target="_blank"
                       rel="noopener noreferrer"
                       download
@@ -221,6 +221,8 @@ export default function JobDetails() {
                       <Download className="w-4 h-4" /> Resume
                     </a>
                   )}
+
+                  
                 </div>
               </div>
             ))}
